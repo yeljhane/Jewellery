@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navAllowed, isOwnerOrManager } from "@/lib/permissions";
-import { signOutAction } from "@/lib/signout-action";
+import { LogoutButton } from "@/components/LogoutButton";
 import {
   LayoutDashboard,
   Package,
@@ -19,7 +19,6 @@ import {
   BookOpen,
   Sparkles,
   UserCog,
-  LogOut,
   Wrench,
   Scale,
   Percent,
@@ -117,15 +116,9 @@ export function AppSidebar({
       <div className="border-t border-white/10 px-5 py-4">
         <p className="truncate text-sm text-white/80">{userName || "Staff"}</p>
         <p className="text-[11px] uppercase tracking-wider text-white/40">{role || "—"}</p>
-        <form action={signOutAction} className="mt-3">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 text-xs text-white/50 hover:text-[var(--gold-soft)]"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Sign out
-          </button>
-        </form>
+        <div className="mt-3">
+          <LogoutButton />
+        </div>
       </div>
     </aside>
   );

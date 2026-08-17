@@ -550,9 +550,14 @@ model MarketingCampaign {
   channel      String // SMS, EMAIL
   subject      String?
   body         String
+  attachmentUrl  String?
+  attachmentName String?
+  attachmentType String?
   audience     String   @default("ALL") // ALL, VIP, OPTED_IN
-  status       String   @default("DRAFT") // DRAFT, SENT
+  status       String   @default("DRAFT") // DRAFT, SENDING, SENT, PARTIAL, FAILED
   sentCount    Int      @default(0)
+  failedCount  Int      @default(0)
+  lastError    String?
   sentAt       DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

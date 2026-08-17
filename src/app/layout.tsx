@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Cormorant_Garamond, Source_Sans_3 } from "next/font/google";
 import { headers } from "next/headers";
 import { AppSidebar } from "@/components/AppSidebar";
+import { AppLaunchSplash } from "@/components/AppLaunchSplash";
 import { auth } from "@/lib/auth";
 import "./globals.css";
 
@@ -35,6 +36,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${display.variable} ${body.variable} antialiased`}>
+        <AppLaunchSplash />
         {isLogin ? (
           <main className="min-h-screen">
             <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">{children}</div>
