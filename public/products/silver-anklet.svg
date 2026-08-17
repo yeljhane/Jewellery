@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="480" viewBox="0 0 640 480">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1f24"/>
+      <stop offset="100%" stop-color="#0d1014"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="480" fill="url(#bg)"/>
+  <path d="M180 200 Q240 160 320 200 Q400 240 460 200" fill="none" stroke="#c0c7ce" stroke-width="8" stroke-linecap="round"/>
+  <path d="M190 230 Q250 190 320 230 Q390 270 450 230" fill="none" stroke="#9aa3ab" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="180" cy="200" r="10" fill="#d8dee4"/>
+  <circle cx="460" cy="200" r="10" fill="#d8dee4"/>
+  <text x="320" y="420" text-anchor="middle" fill="#c0c7ce" font-family="Georgia, serif" font-size="22">Silver Anklet</text>
+</svg>

@@ -1,0 +1,559 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ShopSettings {
+  id              String   @id @default(cuid())
+  shopName        String   @default("Avenue JOAILLERIE")
+  address         String?
+  phone           String?
+  email           String?
+  gstin           String?
+  currency        String   @default("INR")
+  logoUrl         String?
+  makingChargePct Float    @default(12)
+  wastagePct      Float    @default(2)
+  taxPct          Float    @default(3)
+  commissionPct   Float    @default(1)
+  dualAuthAdjustments Boolean @default(true)
+  dualAuthTransfers   Boolean @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MetalRate {
+  id        String   @id @default(cuid())
+  metal     String // GOLD, SILVER, PLATINUM
+  purity    String // 24K, 22K, 18K, 999, 925
+  ratePerGram Float
+  effectiveFrom DateTime @default(now())
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Supplier {
+  id           String          @id @default(cuid())
+  name         String
+  phone        String?
+  email        String?
+  address      String?
+  gstin        String?
+  notes        String?
+  purchases    PurchaseOrder[]
+  rawMaterials RawMaterial[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model Customer {
+  id             String            @id @default(cuid())
+  name           String
+  phone          String?
+  email          String?
+  address        String?
+  gstin          String?
+  notes          String?
+  vipTier        String            @default("STANDARD") // STANDARD, SILVER, GOLD, PLATINUM
+  tags           String? // comma-separated
+  preferredMetal String?
+  preferredStone String?
+  marketingOptIn Boolean           @default(true)
+  sales          Sale[]
+  repairs        RepairOrder[]
+  appraisals     Appraisal[]
+  tradeIns       TradeIn[]
+  customJobs     ManufacturingJob[]
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+}
+
+model Karigar {
+  id           String            @id @default(cuid())
+  name         String
+  phone        String?
+  specialty    String?
+  dailyWage    Float?
+  notes        String?
+  jobOrders    ManufacturingJob[]
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+model Employee {
+  id            String            @id @default(cuid())
+  name          String
+  role          String // OWNER, MANAGER, SALES, ACCOUNTANT, WORKSHOP
+  phone         String?
+  email         String?
+  username      String?           @unique
+  passwordHash  String?
+  active        Boolean           @default(true)
+  commissionPct Float? // null = use ShopSettings.commissionPct
+  sales         Sale[]
+  commissions   CommissionEntry[]
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}
+
+model RawMaterial {
+  id           String    @id @default(cuid())
+  name         String
+  type         String // METAL, STONE, FINDING, OTHER
+  metal        String? // GOLD, SILVER, PLATINUM
+  purity       String?
+  weightGrams  Float     @default(0)
+  quantity     Float     @default(0)
+  unit         String    @default("g") // g, ct, pcs
+  costPerUnit  Float     @default(0)
+  supplierId   String?
+  supplier     Supplier? @relation(fields: [supplierId], references: [id])
+  location     String?
+  notes        String?
+  jobMaterials JobMaterial[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  sku           String   @unique
+  name          String
+  categoryId    String?
+  category      Category? @relation(fields: [categoryId], references: [id])
+  jewelleryType String   @default("GOLD") // GOLD, DIAMOND — Gold Jewellery / Diamond Jewellery
+  metal         String // GOLD, SILVER, PLATINUM, FASHION
+  purity        String?
+  grossWeight   Float    @default(0)
+  netWeight     Float    @default(0)
+  stoneWeight   Float    @default(0)
+  stoneDetails  String?
+  makingCharge  Float    @default(0)
+  wastagePct    Float    @default(0)
+  costPrice     Float    @default(0)
+  sellingPrice  Float    @default(0)
+  quantity      Int      @default(0)
+  status        String   @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_PRODUCTION
+  hsnCode       String?
+  imageUrl      String?
+  notes         String?
+  saleItems     SaleItem[]
+  purchaseItems PurchaseItem[]
+  jobOrders     ManufacturingJob[]
+  serialItems   InventoryItem[]
+  repairs       RepairOrder[]
+  appraisals    Appraisal[]
+  tradeIns      TradeIn[]
+  movements     StockMovement[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InventoryItem {
+  id           String         @id @default(cuid())
+  serialNumber String         @unique
+  rfidTag      String?        @unique
+  productId    String
+  product      Product        @relation(fields: [productId], references: [id])
+  locationId   String?
+  location     StockLocation? @relation(fields: [locationId], references: [id])
+  status       String         @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_REPAIR, TRADED_IN, IN_TRANSIT, MISSING
+  locationNote String?
+  costPrice    Float?
+  notes        String?
+  saleItems    SaleItem[]
+  repairs      RepairOrder[]
+  movements    StockMovement[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model StockLocation {
+  id          String          @id @default(cuid())
+  name        String
+  kind        String          @default("SHOWCASE") // SHOWCASE, SAFE, VAULT, COUNTER, OTHER
+  description String?
+  active      Boolean         @default(true)
+  items       InventoryItem[]
+  countFrom   StockCount[]    @relation("CountLocation")
+  transferFrom StockTransfer[] @relation("TransferFrom")
+  transferTo   StockTransfer[] @relation("TransferTo")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+model StockMovement {
+  id              String         @id @default(cuid())
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  productId       String?
+  product         Product?       @relation(fields: [productId], references: [id])
+  movementType    String // SALE, RETURN, ADJUST, TRANSFER_OUT, TRANSFER_IN, COUNT, REPAIR, RECEIVE, RFID_SCAN, CREATE
+  quantityDelta   Int            @default(0)
+  qtyBefore       Int?
+  qtyAfter        Int?
+  fromLocationId  String?
+  toLocationId    String?
+  referenceType   String?
+  referenceId     String?
+  note            String?
+  actorId         String?
+  actorName       String?
+  createdAt       DateTime       @default(now())
+}
+
+model StockTransfer {
+  id              String              @id @default(cuid())
+  transferNumber  String              @unique
+  status          String              @default("PENDING") // PENDING, APPROVED, IN_TRANSIT, COMPLETED, REJECTED, CANCELLED
+  fromLocationId  String
+  fromLocation    StockLocation       @relation("TransferFrom", fields: [fromLocationId], references: [id])
+  toLocationId    String
+  toLocation      StockLocation       @relation("TransferTo", fields: [toLocationId], references: [id])
+  requestedById   String?
+  requestedByName String?
+  approvedById    String?
+  approvedByName  String?
+  confirmedById   String?
+  confirmedByName String?
+  notes           String?
+  items           StockTransferItem[]
+  requestedAt     DateTime            @default(now())
+  approvedAt      DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+}
+
+model StockTransferItem {
+  id              String         @id @default(cuid())
+  transferId      String
+  transfer        StockTransfer  @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  inventoryItemId String?
+  productId       String?
+  serialNumber    String?
+  quantity        Int            @default(1)
+}
+
+model StockCount {
+  id           String           @id @default(cuid())
+  countNumber  String           @unique
+  locationId   String?
+  location     StockLocation?   @relation("CountLocation", fields: [locationId], references: [id])
+  status       String           @default("OPEN") // OPEN, COMPLETED, CANCELLED
+  countedById  String?
+  countedByName String?
+  notes        String?
+  lines        StockCountLine[]
+  startedAt    DateTime         @default(now())
+  completedAt  DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+}
+
+model StockCountLine {
+  id              String     @id @default(cuid())
+  countId         String
+  count           StockCount @relation(fields: [countId], references: [id], onDelete: Cascade)
+  inventoryItemId String?
+  productId       String?
+  serialNumber    String?
+  expectedStatus  String?
+  countedPresent  Boolean    @default(true)
+  note            String?
+}
+
+model InventoryAuditLog {
+  id         String   @id @default(cuid())
+  action     String // ADJUST, TRANSFER_REQUEST, TRANSFER_APPROVE, TRANSFER_CONFIRM, TRANSFER_REJECT, COUNT, DUAL_AUTH, RFID, SETTINGS, ALERT
+  severity   String   @default("INFO") // INFO, WARN, CRITICAL
+  summary    String
+  detail     String?
+  entityType String?
+  entityId   String?
+  actorId    String?
+  actorName  String?
+  approverId String?
+  approverName String?
+  // Append-only: no update/delete actions are exposed in the app
+  createdAt  DateTime @default(now())
+}
+
+model PurchaseOrder {
+  id           String         @id @default(cuid())
+  poNumber     String         @unique
+  supplierId   String
+  supplier     Supplier       @relation(fields: [supplierId], references: [id])
+  txnType      String         @default("GOLD_PURCHASE") // GOLD_PURCHASE, GOLD_RETURN, DIAMOND_PURCHASE, DIAMOND_RETURN
+  status       String         @default("DRAFT") // DRAFT, ORDERED, RECEIVED, CANCELLED
+  orderDate    DateTime       @default(now())
+  receivedDate DateTime?
+  subtotal     Float          @default(0)
+  taxAmount    Float          @default(0)
+  totalAmount  Float          @default(0)
+  notes        String?
+  items        PurchaseItem[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model PurchaseItem {
+  id              String        @id @default(cuid())
+  purchaseOrderId String
+  purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product?      @relation(fields: [productId], references: [id])
+  description     String
+  metal           String?
+  purity          String?
+  weightGrams     Float         @default(0)
+  quantity        Float         @default(1)
+  rate            Float         @default(0)
+  amount          Float         @default(0)
+}
+
+model ManufacturingJob {
+  id             String        @id @default(cuid())
+  jobNumber      String        @unique
+  productId      String?
+  product        Product?      @relation(fields: [productId], references: [id])
+  customerId     String?
+  customer       Customer?     @relation(fields: [customerId], references: [id])
+  karigarId      String?
+  karigar        Karigar?      @relation(fields: [karigarId], references: [id])
+  status         String        @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  designName     String
+  metal          String
+  purity         String?
+  issuedWeight   Float         @default(0)
+  returnedWeight Float         @default(0)
+  wastageWeight  Float         @default(0)
+  stoneWeight    Float         @default(0)
+  labourCost     Float         @default(0)
+  isCustomOrder  Boolean       @default(false)
+  depositAmount  Float         @default(0)
+  startDate      DateTime      @default(now())
+  dueDate        DateTime?
+  completedAt    DateTime?
+  notes          String?
+  materials      JobMaterial[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model JobMaterial {
+  id            String           @id @default(cuid())
+  jobId         String
+  job           ManufacturingJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  rawMaterialId String
+  rawMaterial   RawMaterial      @relation(fields: [rawMaterialId], references: [id])
+  quantityUsed  Float            @default(0)
+  notes         String?
+}
+
+model Sale {
+  id            String        @id @default(cuid())
+  invoiceNumber String        @unique
+  customerId    String?
+  customer      Customer?     @relation(fields: [customerId], references: [id])
+  customerName  String?       // manual / walk-in name when no customer record
+  employeeId    String?
+  employee      Employee?     @relation(fields: [employeeId], references: [id])
+  txnType       String        @default("GOLD_SALE") // GOLD_SALE, GOLD_RETURN, DIAMOND_SALE, DIAMOND_RETURN
+  saleDate      DateTime      @default(now())
+  status        String        @default("COMPLETED") // DRAFT, COMPLETED, CANCELLED, RETURNED
+  subtotal      Float         @default(0)
+  makingCharges Float         @default(0)
+  taxAmount     Float         @default(0)
+  discount      Float         @default(0)
+  totalAmount   Float         @default(0)
+  paidAmount    Float         @default(0)
+  paymentMethod String        @default("CASH") // CASH, UPI, CARD, BANK, MIXED
+  notes         String?
+  items         SaleItem[]
+  payments      SalePayment[]
+  commissions   CommissionEntry[]
+  tradeIns      TradeIn[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model SalePayment {
+  id            String   @id @default(cuid())
+  saleId        String
+  sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  method        String // CASH, UPI, CARD, BANK
+  amount        Float // always in shop base currency (after conversion)
+  currency      String   @default("INR") // payment currency received
+  foreignAmount Float? // amount in payment currency (null = same as amount)
+  exchangeRate  Float    @default(1) // 1 foreign unit = exchangeRate base units
+  reference     String?
+  createdAt     DateTime @default(now())
+}
+
+model SaleItem {
+  id              String         @id @default(cuid())
+  saleId          String
+  sale            Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product?       @relation(fields: [productId], references: [id])
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  description     String
+  metal           String?
+  purity          String?
+  netWeight       Float          @default(0)
+  quantity        Int            @default(1)
+  metalRate       Float          @default(0)
+  makingCharge    Float          @default(0)
+  stoneCharge     Float          @default(0)
+  amount          Float          @default(0)
+}
+
+model Expense {
+  id          String   @id @default(cuid())
+  category    String // RENT, UTILITIES, SALARY, MARKETING, TRANSPORT, OTHER
+  description String
+  amount      Float
+  expenseDate DateTime @default(now())
+  paymentMethod String @default("CASH")
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model Account {
+  id        String        @id @default(cuid())
+  code      String        @unique
+  name      String
+  type      String // ASSET, LIABILITY, EQUITY, INCOME, EXPENSE
+  groupName String?
+  isSystem  Boolean       @default(true)
+  active    Boolean       @default(true)
+  lines     JournalLine[]
+  createdAt DateTime      @default(now())
+}
+
+model JournalEntry {
+  id            String        @id @default(cuid())
+  entryNumber   String        @unique
+  entryDate     DateTime      @default(now())
+  narration     String
+  sourceType    String? // SALE, PURCHASE, EXPENSE, MANUAL, OPENING
+  sourceId      String?
+  lines         JournalLine[]
+  createdAt     DateTime      @default(now())
+}
+
+model JournalLine {
+  id             String       @id @default(cuid())
+  journalEntryId String
+  journalEntry   JournalEntry @relation(fields: [journalEntryId], references: [id], onDelete: Cascade)
+  accountId      String
+  account        Account      @relation(fields: [accountId], references: [id])
+  debit          Float        @default(0)
+  credit         Float        @default(0)
+  memo           String?
+}
+
+model RepairOrder {
+  id              String         @id @default(cuid())
+  ticketNumber    String         @unique
+  customerId      String?
+  customer        Customer?      @relation(fields: [customerId], references: [id])
+  customerName    String?
+  productId       String?
+  product         Product?       @relation(fields: [productId], references: [id])
+  inventoryItemId String?
+  inventoryItem   InventoryItem? @relation(fields: [inventoryItemId], references: [id])
+  repairType      String         @default("REPAIR") // REPAIR, RESIZE, POLISH, OTHER
+  status          String         @default("RECEIVED") // RECEIVED, IN_PROGRESS, READY, DELIVERED, CANCELLED
+  description     String
+  estimatedCost   Float          @default(0)
+  labourCost      Float          @default(0)
+  materialCost    Float          @default(0)
+  depositAmount   Float          @default(0)
+  totalCharge     Float          @default(0)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  notes           String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model Appraisal {
+  id              String    @id @default(cuid())
+  appraisalNumber String    @unique
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  customerName    String?
+  productId       String?
+  product         Product?  @relation(fields: [productId], references: [id])
+  description     String
+  metal           String?
+  purity          String?
+  netWeight       Float     @default(0)
+  appraisedValue  Float     @default(0)
+  purpose         String    @default("INSURANCE") // INSURANCE, SALE, TRADE_IN, OTHER
+  notes           String?
+  appraisedAt     DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model TradeIn {
+  id           String    @id @default(cuid())
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  customerName String?
+  saleId       String?
+  sale         Sale?     @relation(fields: [saleId], references: [id])
+  productId    String?
+  product      Product?  @relation(fields: [productId], references: [id])
+  description  String
+  metal        String?
+  purity       String?
+  netWeight    Float     @default(0)
+  creditAmount Float     @default(0)
+  status       String    @default("RECEIVED") // RECEIVED, APPLIED, CANCELLED
+  notes        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model CommissionEntry {
+  id         String    @id @default(cuid())
+  employeeId String
+  employee   Employee  @relation(fields: [employeeId], references: [id])
+  saleId     String
+  sale       Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleAmount Float     @default(0)
+  ratePct    Float     @default(0)
+  amount     Float     @default(0)
+  status     String    @default("ACCRUED") // ACCRUED, PAID, VOID
+  createdAt  DateTime  @default(now())
+}
+
+model MarketingCampaign {
+  id           String   @id @default(cuid())
+  name         String
+  channel      String // SMS, EMAIL
+  subject      String?
+  body         String
+  audience     String   @default("ALL") // ALL, VIP, OPTED_IN
+  status       String   @default("DRAFT") // DRAFT, SENT
+  sentCount    Int      @default(0)
+  sentAt       DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
