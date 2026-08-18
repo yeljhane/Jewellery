@@ -1,4 +1,5 @@
 export const PAYMENT_CURRENCIES = [
+  { value: "AZN", label: "AZN — Azerbaijani Manat" },
   { value: "INR", label: "INR — Indian Rupee" },
   { value: "USD", label: "USD — US Dollar" },
   { value: "AED", label: "AED — UAE Dirham" },
@@ -19,6 +20,7 @@ export const PAYMENT_CURRENCIES = [
 /** Approximate fallback rates vs USD when live API is unavailable */
 const USD_FALLBACK: Record<string, number> = {
   USD: 1,
+  AZN: 1.7,
   EUR: 0.92,
   GBP: 0.79,
   INR: 83.5,

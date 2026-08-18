@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { navAllowed, isOwnerOrManager } from "@/lib/permissions";
 import { LogoutButton } from "@/components/LogoutButton";
+import { type InterfaceLanguage, navLabel } from "@/lib/localization";
 import {
   LayoutDashboard,
   Package,
@@ -25,41 +26,47 @@ import {
   Megaphone,
   Tags,
   Shield,
+  Headphones,
+  BadgePercent,
 } from "lucide-react";
 
 const nav = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/analytics", label: "AI Analytics", icon: Sparkles },
-  { href: "/inventory", label: "Finished Stock", icon: Gem },
-  { href: "/inventory/serials", label: "Serials", icon: Tags },
-  { href: "/inventory/security", label: "Inv. Security", icon: Shield },
-  { href: "/materials", label: "Raw Materials", icon: Boxes },
-  { href: "/manufacturing", label: "Manufacturing", icon: Factory },
-  { href: "/pos", label: "POS", icon: Store },
-  { href: "/sales", label: "Sales", icon: ShoppingCart },
-  { href: "/repairs", label: "Repairs", icon: Wrench },
-  { href: "/appraisals", label: "Appraisals", icon: Scale },
-  { href: "/purchases", label: "Purchases", icon: Truck },
-  { href: "/customers", label: "Customers", icon: Users },
-  { href: "/marketing", label: "Marketing", icon: Megaphone },
-  { href: "/suppliers", label: "Suppliers", icon: Package },
-  { href: "/karigars", label: "Karigars", icon: Hammer },
-  { href: "/rates", label: "Metal Rates", icon: Coins },
-  { href: "/expenses", label: "Expenses", icon: Receipt },
-  { href: "/commissions", label: "Commissions", icon: Percent },
-  { href: "/accounting", label: "Accounting", icon: BookOpen },
-  { href: "/staff", label: "Staff", icon: UserCog },
-  { href: "/settings", label: "Settings", icon: Settings },
+  { href: "/", labelKey: "Dashboard", icon: LayoutDashboard },
+  { href: "/analytics", labelKey: "Analytics", icon: Sparkles },
+  { href: "/inventory", labelKey: "Stock", icon: Gem },
+  { href: "/inventory/serials", labelKey: "Serials", icon: Tags },
+  { href: "/inventory/security", labelKey: "Security", icon: Shield },
+  { href: "/materials", labelKey: "Materials", icon: Boxes },
+  { href: "/manufacturing", labelKey: "Manufacturing", icon: Factory },
+  { href: "/pos", labelKey: "POS", icon: Store },
+  { href: "/sales", labelKey: "Sales", icon: ShoppingCart },
+  { href: "/repairs", labelKey: "Repairs", icon: Wrench },
+  { href: "/appraisals", labelKey: "Appraisals", icon: Scale },
+  { href: "/purchases", labelKey: "Purchases", icon: Truck },
+  { href: "/customers", labelKey: "Customers", icon: Users },
+  { href: "/service", labelKey: "Service", icon: Headphones },
+  { href: "/vat-refunds", labelKey: "VAT", icon: BadgePercent },
+  { href: "/marketing", labelKey: "Marketing", icon: Megaphone },
+  { href: "/suppliers", labelKey: "Suppliers", icon: Package },
+  { href: "/karigars", labelKey: "Karigars", icon: Hammer },
+  { href: "/rates", labelKey: "Rates", icon: Coins },
+  { href: "/expenses", labelKey: "Expenses", icon: Receipt },
+  { href: "/commissions", labelKey: "Commissions", icon: Percent },
+  { href: "/accounting", labelKey: "Accounting", icon: BookOpen },
+  { href: "/staff", labelKey: "Staff", icon: UserCog },
+  { href: "/settings", labelKey: "Settings", icon: Settings },
 ];
 
 export function AppSidebar({
   currentPath,
   userName,
   userRole,
+  language = "AZ",
 }: {
   currentPath: string;
   userName?: string | null;
   userRole?: string | null;
+  language?: InterfaceLanguage;
 }) {
   const role = userRole || "";
   const items = nav.filter((item) => {
@@ -108,7 +115,7 @@ export function AppSidebar({
               )}
             >
               <Icon className="h-4 w-4 shrink-0" />
-              {item.label}
+              {navLabel(language, item.labelKey)}
             </Link>
           );
         })}
@@ -117,7 +124,7 @@ export function AppSidebar({
         <p className="truncate text-sm text-white/80">{userName || "Staff"}</p>
         <p className="text-[11px] uppercase tracking-wider text-white/40">{role || "—"}</p>
         <div className="mt-3">
-          <LogoutButton />
+          <LogoutButton label={navLabel(language, "SignOut")} />
         </div>
       </div>
     </aside>

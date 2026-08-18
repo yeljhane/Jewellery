@@ -31,6 +31,16 @@ export async function nextAppraisalNumber() {
   return generateNumber("APR", count + 1);
 }
 
+export async function nextServiceCaseNumber() {
+  const count = await prisma.customerServiceCase.count();
+  return generateNumber("CASE", count + 1);
+}
+
+export async function nextVatRefundNumber() {
+  const count = await prisma.touristVatRefund.count();
+  return generateNumber("VAT", count + 1);
+}
+
 export async function nextSku(prefix = "JW") {
   const count = await prisma.product.count();
   return `${prefix}-${String(count + 1).padStart(5, "0")}`;
@@ -40,7 +50,7 @@ export async function getShopCurrency() {
   const settings = await prisma.shopSettings.findFirst({
     select: { currency: true },
   });
-  return settings?.currency || "INR";
+  return settings?.currency || "AZN";
 }
 
 export async function getLatestMetalRates() {

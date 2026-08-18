@@ -4,11 +4,12 @@ import { getLatestMetalRates } from "@/lib/data";
 import { prisma } from "@/lib/prisma";
 import { Card, PageHeader } from "@/components/ui";
 import { SaleFormFields } from "@/components/SaleFormFields";
+import { OfflinePosStatus } from "@/components/OfflinePosStatus";
 
 export const dynamic = "force-dynamic";
 
 export default async function PosPage() {
-  const [customers, products, employees, rates, settings] = await Promise.all([
+  const [customers, products, employees, rates, settings, conflictCount] = await Promise.all([
     prisma.customer.findMany({ orderBy: { name: "asc" } }),
     prisma.product.findMany({
       where: { status: "IN_STOCK", quantity: { gt: 0 } },
@@ -17,11 +18,12 @@ export default async function PosPage() {
     prisma.employee.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     getLatestMetalRates(),
     prisma.shopSettings.findFirst(),
+    prisma.offlinePosTransaction.count({ where: { status: "CONFLICT" } }),
   ]);
 
   const defaultRate = rates["GOLD-22K"] ?? rates["GOLD-18K"] ?? 0;
-  const baseCurrency = settings?.currency ?? "INR";
-  const defaultTaxPct = settings?.taxPct ?? 3;
+  const baseCurrency = settings?.currency ?? "AZN";
+  const defaultTaxPct = settings?.taxPct ?? 18;
 
   const productOptions = products.map((p) => ({
     id: p.id,
@@ -43,13 +45,14 @@ export default async function PosPage() {
     <div>
       <PageHeader
         title="POS"
-        description="Quick counter billing — retail, gold, or diamond. Invoices appear under Sales."
+        description="Offline-first counter billing with local queueing, automatic reconnect sync, and stock conflict review."
         actions={
           <Link href="/sales" className="text-sm text-[var(--gold-deep)] hover:underline">
             Sales history
           </Link>
         }
       />
+      <OfflinePosStatus serverConflictCount={conflictCount} />
       <Card>
         <SaleFormFields
           mode="pos"
@@ -67,6 +70,7 @@ export default async function PosPage() {
           defaultTaxPct={defaultTaxPct}
           defaults={{ txnType: "RETAIL_SALE", initialTaxPct: defaultTaxPct }}
           submitLabel="Complete Sale"
+          offlineMode
         />
       </Card>
     </div>

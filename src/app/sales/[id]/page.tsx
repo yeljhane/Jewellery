@@ -24,7 +24,7 @@ export default async function SaleDetailPage({
   if (!sale) notFound();
 
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   const customerDisplay =

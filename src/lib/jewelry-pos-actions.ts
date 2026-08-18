@@ -179,7 +179,7 @@ export async function createTradeIn(formData: FormData) {
     const sale = await prisma.sale.findUnique({ where: { id: saleId } });
     if (sale) {
       const settings = await prisma.shopSettings.findFirst();
-      const baseCurrency = settings?.currency || "INR";
+      const baseCurrency = settings?.currency || "AZN";
       await prisma.salePayment.create({
         data: {
           saleId,

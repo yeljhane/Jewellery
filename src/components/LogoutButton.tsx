@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 import { signOutAction } from "@/lib/signout-action";
 import { showAppSplash, SPLASH_ROUTE_DELAY_MS } from "@/components/AppLaunchSplash";
 
-export function LogoutButton() {
+export function LogoutButton({ label = "Sign out" }: { label?: string }) {
   const [pending, setPending] = useState(false);
 
   async function handleLogout() {
@@ -25,7 +25,7 @@ export function LogoutButton() {
       className="inline-flex items-center gap-2 text-xs text-white/50 hover:text-[var(--gold-soft)] disabled:cursor-wait"
     >
       <LogOut className="h-3.5 w-3.5" />
-      Sign out
+      {label}
     </button>
   );
 }

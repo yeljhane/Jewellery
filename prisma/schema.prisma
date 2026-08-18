@@ -8,31 +8,40 @@ datasource db {
 }
 
 model ShopSettings {
-  id              String   @id @default(cuid())
-  shopName        String   @default("Avenue JOAILLERIE")
-  address         String?
-  phone           String?
-  email           String?
-  gstin           String?
-  currency        String   @default("INR")
-  logoUrl         String?
-  makingChargePct Float    @default(12)
-  wastagePct      Float    @default(2)
-  taxPct          Float    @default(3)
-  commissionPct   Float    @default(1)
-  dualAuthAdjustments Boolean @default(true)
-  dualAuthTransfers   Boolean @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                        String   @id @default(cuid())
+  shopName                  String   @default("Avenue JOAILLERIE")
+  address                   String?
+  phone                     String?
+  email                     String?
+  gstin                     String?
+  currency                  String   @default("AZN")
+  interfaceLanguage         String   @default("EN") // EN, AZ, RU, AR
+  slaCriticalHours          Int      @default(4)
+  slaHighHours              Int      @default(8)
+  slaNormalHours            Int      @default(24)
+  slaLowHours               Int      @default(72)
+  touristVatRefundEnabled   Boolean  @default(true)
+  taxFreeMerchantRegistered Boolean  @default(false)
+  vatRefundMinSale          Float    @default(300)
+  vatRefundFeePct           Float    @default(20)
+  logoUrl                   String?
+  makingChargePct           Float    @default(12)
+  wastagePct                Float    @default(2)
+  taxPct                    Float    @default(18)
+  commissionPct             Float    @default(1)
+  dualAuthAdjustments       Boolean  @default(true)
+  dualAuthTransfers         Boolean  @default(true)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
 }
 
 model MetalRate {
-  id        String   @id @default(cuid())
-  metal     String // GOLD, SILVER, PLATINUM
-  purity    String // 24K, 22K, 18K, 999, 925
-  ratePerGram Float
+  id            String   @id @default(cuid())
+  metal         String // GOLD, SILVER, PLATINUM
+  purity        String // 24K, 22K, 18K, 999, 925
+  ratePerGram   Float
   effectiveFrom DateTime @default(now())
-  createdAt DateTime @default(now())
+  createdAt     DateTime @default(now())
 }
 
 model Category {
@@ -58,93 +67,100 @@ model Supplier {
 }
 
 model Customer {
-  id             String            @id @default(cuid())
+  id             String                @id @default(cuid())
   name           String
   phone          String?
   email          String?
   address        String?
   gstin          String?
   notes          String?
-  vipTier        String            @default("STANDARD") // STANDARD, SILVER, GOLD, PLATINUM
+  vipTier        String                @default("STANDARD") // STANDARD, SILVER, GOLD, PLATINUM
   tags           String? // comma-separated
   preferredMetal String?
   preferredStone String?
-  marketingOptIn Boolean           @default(true)
+  marketingOptIn Boolean               @default(true)
   sales          Sale[]
   repairs        RepairOrder[]
   appraisals     Appraisal[]
   tradeIns       TradeIn[]
   customJobs     ManufacturingJob[]
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
+  serviceCases   CustomerServiceCase[]
+  vatRefunds     TouristVatRefund[]
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
 }
 
 model Karigar {
-  id           String            @id @default(cuid())
-  name         String
-  phone        String?
-  specialty    String?
-  dailyWage    Float?
-  notes        String?
-  jobOrders    ManufacturingJob[]
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id        String             @id @default(cuid())
+  name      String
+  phone     String?
+  specialty String?
+  dailyWage Float?
+  notes     String?
+  jobOrders ManufacturingJob[]
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
 }
 
 model Employee {
-  id            String            @id @default(cuid())
-  name          String
-  role          String // OWNER, MANAGER, SALES, ACCOUNTANT, WORKSHOP
-  phone         String?
-  email         String?
-  username      String?           @unique
-  passwordHash  String?
-  active        Boolean           @default(true)
-  commissionPct Float? // null = use ShopSettings.commissionPct
-  sales         Sale[]
-  commissions   CommissionEntry[]
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id                   String                  @id @default(cuid())
+  name                 String
+  role                 String // OWNER, MANAGER, SALES, ACCOUNTANT, WORKSHOP
+  phone                String?
+  email                String?
+  username             String?                 @unique
+  passwordHash         String?
+  active               Boolean                 @default(true)
+  commissionPct        Float? // null = use ShopSettings.commissionPct
+  sales                Sale[]
+  commissions          CommissionEntry[]
+  assignedServiceCases CustomerServiceCase[]   @relation("ServiceCaseAssignee")
+  createdServiceCases  CustomerServiceCase[]   @relation("ServiceCaseCreator")
+  caseInteractions     CaseInteraction[]
+  createdVatRefunds    TouristVatRefund[]
+  vatRefundEvents      TouristVatRefundEvent[]
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
 }
 
 model RawMaterial {
-  id           String    @id @default(cuid())
+  id           String        @id @default(cuid())
   name         String
   type         String // METAL, STONE, FINDING, OTHER
   metal        String? // GOLD, SILVER, PLATINUM
   purity       String?
-  weightGrams  Float     @default(0)
-  quantity     Float     @default(0)
-  unit         String    @default("g") // g, ct, pcs
-  costPerUnit  Float     @default(0)
+  weightGrams  Float         @default(0)
+  quantity     Float         @default(0)
+  unit         String        @default("g") // g, ct, pcs
+  costPerUnit  Float         @default(0)
   supplierId   String?
-  supplier     Supplier? @relation(fields: [supplierId], references: [id])
+  supplier     Supplier?     @relation(fields: [supplierId], references: [id])
   location     String?
   notes        String?
   jobMaterials JobMaterial[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  sku           String   @unique
+  id            String             @id @default(cuid())
+  sku           String             @unique
   name          String
   categoryId    String?
-  category      Category? @relation(fields: [categoryId], references: [id])
-  jewelleryType String   @default("GOLD") // GOLD, DIAMOND — Gold Jewellery / Diamond Jewellery
+  category      Category?          @relation(fields: [categoryId], references: [id])
+  jewelleryType String             @default("GOLD") // GOLD, DIAMOND — Gold Jewellery / Diamond Jewellery
   metal         String // GOLD, SILVER, PLATINUM, FASHION
   purity        String?
-  grossWeight   Float    @default(0)
-  netWeight     Float    @default(0)
-  stoneWeight   Float    @default(0)
+  grossWeight   Float              @default(0)
+  netWeight     Float              @default(0)
+  stoneWeight   Float              @default(0)
   stoneDetails  String?
-  makingCharge  Float    @default(0)
-  wastagePct    Float    @default(0)
-  costPrice     Float    @default(0)
-  sellingPrice  Float    @default(0)
-  quantity      Int      @default(0)
-  status        String   @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_PRODUCTION
+  makingCharge  Float              @default(0)
+  wastagePct    Float              @default(0)
+  costPrice     Float              @default(0)
+  sellingPrice  Float              @default(0)
+  quantity      Int                @default(0)
+  status        String             @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_PRODUCTION
   hsnCode       String?
   imageUrl      String?
   notes         String?
@@ -156,41 +172,41 @@ model Product {
   appraisals    Appraisal[]
   tradeIns      TradeIn[]
   movements     StockMovement[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
 }
 
 model InventoryItem {
-  id           String         @id @default(cuid())
-  serialNumber String         @unique
-  rfidTag      String?        @unique
+  id           String          @id @default(cuid())
+  serialNumber String          @unique
+  rfidTag      String?         @unique
   productId    String
-  product      Product        @relation(fields: [productId], references: [id])
+  product      Product         @relation(fields: [productId], references: [id])
   locationId   String?
-  location     StockLocation? @relation(fields: [locationId], references: [id])
-  status       String         @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_REPAIR, TRADED_IN, IN_TRANSIT, MISSING
+  location     StockLocation?  @relation(fields: [locationId], references: [id])
+  status       String          @default("IN_STOCK") // IN_STOCK, RESERVED, SOLD, IN_REPAIR, TRADED_IN, IN_TRANSIT, MISSING
   locationNote String?
   costPrice    Float?
   notes        String?
   saleItems    SaleItem[]
   repairs      RepairOrder[]
   movements    StockMovement[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }
 
 model StockLocation {
-  id          String          @id @default(cuid())
-  name        String
-  kind        String          @default("SHOWCASE") // SHOWCASE, SAFE, VAULT, COUNTER, OTHER
-  description String?
-  active      Boolean         @default(true)
-  items       InventoryItem[]
-  countFrom   StockCount[]    @relation("CountLocation")
+  id           String          @id @default(cuid())
+  name         String
+  kind         String          @default("SHOWCASE") // SHOWCASE, SAFE, VAULT, COUNTER, OTHER
+  description  String?
+  active       Boolean         @default(true)
+  items        InventoryItem[]
+  countFrom    StockCount[]    @relation("CountLocation")
   transferFrom StockTransfer[] @relation("TransferFrom")
   transferTo   StockTransfer[] @relation("TransferTo")
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 }
 
 model StockMovement {
@@ -237,29 +253,29 @@ model StockTransfer {
 }
 
 model StockTransferItem {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   transferId      String
-  transfer        StockTransfer  @relation(fields: [transferId], references: [id], onDelete: Cascade)
+  transfer        StockTransfer @relation(fields: [transferId], references: [id], onDelete: Cascade)
   inventoryItemId String?
   productId       String?
   serialNumber    String?
-  quantity        Int            @default(1)
+  quantity        Int           @default(1)
 }
 
 model StockCount {
-  id           String           @id @default(cuid())
-  countNumber  String           @unique
-  locationId   String?
-  location     StockLocation?   @relation("CountLocation", fields: [locationId], references: [id])
-  status       String           @default("OPEN") // OPEN, COMPLETED, CANCELLED
-  countedById  String?
+  id            String           @id @default(cuid())
+  countNumber   String           @unique
+  locationId    String?
+  location      StockLocation?   @relation("CountLocation", fields: [locationId], references: [id])
+  status        String           @default("OPEN") // OPEN, COMPLETED, CANCELLED
+  countedById   String?
   countedByName String?
-  notes        String?
-  lines        StockCountLine[]
-  startedAt    DateTime         @default(now())
-  completedAt  DateTime?
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  notes         String?
+  lines         StockCountLine[]
+  startedAt     DateTime         @default(now())
+  completedAt   DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
 
 model StockCountLine {
@@ -275,19 +291,19 @@ model StockCountLine {
 }
 
 model InventoryAuditLog {
-  id         String   @id @default(cuid())
-  action     String // ADJUST, TRANSFER_REQUEST, TRANSFER_APPROVE, TRANSFER_CONFIRM, TRANSFER_REJECT, COUNT, DUAL_AUTH, RFID, SETTINGS, ALERT
-  severity   String   @default("INFO") // INFO, WARN, CRITICAL
-  summary    String
-  detail     String?
-  entityType String?
-  entityId   String?
-  actorId    String?
-  actorName  String?
-  approverId String?
+  id           String   @id @default(cuid())
+  action       String // ADJUST, TRANSFER_REQUEST, TRANSFER_APPROVE, TRANSFER_CONFIRM, TRANSFER_REJECT, COUNT, DUAL_AUTH, RFID, SETTINGS, ALERT
+  severity     String   @default("INFO") // INFO, WARN, CRITICAL
+  summary      String
+  detail       String?
+  entityType   String?
+  entityId     String?
+  actorId      String?
+  actorName    String?
+  approverId   String?
   approverName String?
   // Append-only: no update/delete actions are exposed in the app
-  createdAt  DateTime @default(now())
+  createdAt    DateTime @default(now())
 }
 
 model PurchaseOrder {
@@ -363,30 +379,152 @@ model JobMaterial {
 }
 
 model Sale {
-  id            String        @id @default(cuid())
-  invoiceNumber String        @unique
-  customerId    String?
-  customer      Customer?     @relation(fields: [customerId], references: [id])
-  customerName  String?       // manual / walk-in name when no customer record
-  employeeId    String?
-  employee      Employee?     @relation(fields: [employeeId], references: [id])
-  txnType       String        @default("GOLD_SALE") // GOLD_SALE, GOLD_RETURN, DIAMOND_SALE, DIAMOND_RETURN
-  saleDate      DateTime      @default(now())
-  status        String        @default("COMPLETED") // DRAFT, COMPLETED, CANCELLED, RETURNED
-  subtotal      Float         @default(0)
-  makingCharges Float         @default(0)
-  taxAmount     Float         @default(0)
-  discount      Float         @default(0)
-  totalAmount   Float         @default(0)
-  paidAmount    Float         @default(0)
-  paymentMethod String        @default("CASH") // CASH, UPI, CARD, BANK, MIXED
-  notes         String?
-  items         SaleItem[]
-  payments      SalePayment[]
-  commissions   CommissionEntry[]
-  tradeIns      TradeIn[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id                 String                 @id @default(cuid())
+  offlineClientTxnId String?                @unique
+  invoiceNumber      String                 @unique
+  customerId         String?
+  customer           Customer?              @relation(fields: [customerId], references: [id])
+  customerName       String? // manual / walk-in name when no customer record
+  employeeId         String?
+  employee           Employee?              @relation(fields: [employeeId], references: [id])
+  txnType            String                 @default("GOLD_SALE") // GOLD_SALE, GOLD_RETURN, DIAMOND_SALE, DIAMOND_RETURN
+  saleDate           DateTime               @default(now())
+  status             String                 @default("COMPLETED") // DRAFT, COMPLETED, CANCELLED, RETURNED
+  subtotal           Float                  @default(0)
+  makingCharges      Float                  @default(0)
+  taxAmount          Float                  @default(0)
+  discount           Float                  @default(0)
+  totalAmount        Float                  @default(0)
+  paidAmount         Float                  @default(0)
+  paymentMethod      String                 @default("CASH") // CASH, UPI, CARD, BANK, MIXED
+  notes              String?
+  items              SaleItem[]
+  payments           SalePayment[]
+  commissions        CommissionEntry[]
+  tradeIns           TradeIn[]
+  serviceCases       CustomerServiceCase[]
+  vatRefunds         TouristVatRefund[]
+  offlineTransaction OfflinePosTransaction?
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+}
+
+model OfflinePosTransaction {
+  id              String    @id @default(cuid())
+  clientTxnId     String    @unique
+  deviceId        String?
+  payload         String
+  status          String    @default("QUEUED") // QUEUED, SYNCING, SYNCED, CONFLICT, FAILED, DISCARDED
+  conflictCode    String?
+  conflictDetails String?
+  resolution      String?
+  saleId          String?   @unique
+  sale            Sale?     @relation(fields: [saleId], references: [id])
+  queuedAt        DateTime
+  syncedAt        DateTime?
+  resolvedAt      DateTime?
+  attempts        Int       @default(0)
+  lastError       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([status, queuedAt])
+}
+
+model CustomerServiceCase {
+  id              String            @id @default(cuid())
+  caseNumber      String            @unique
+  type            String            @default("ENQUIRY") // COMPLAINT, ENQUIRY, SERVICE_TICKET
+  priority        String            @default("NORMAL") // LOW, NORMAL, HIGH, CRITICAL
+  status          String            @default("OPEN") // OPEN, IN_PROGRESS, WAITING_CUSTOMER, RESOLVED, CLOSED
+  channel         String            @default("IN_PERSON") // IN_PERSON, PHONE, EMAIL, WHATSAPP, WEB, SOCIAL
+  subject         String
+  description     String
+  customerId      String?
+  customer        Customer?         @relation(fields: [customerId], references: [id])
+  contactName     String?
+  contactEmail    String?
+  contactPhone    String?
+  saleId          String?
+  sale            Sale?             @relation(fields: [saleId], references: [id])
+  assignedToId    String?
+  assignedTo      Employee?         @relation("ServiceCaseAssignee", fields: [assignedToId], references: [id])
+  createdById     String?
+  createdBy       Employee?         @relation("ServiceCaseCreator", fields: [createdById], references: [id])
+  slaDueAt        DateTime
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  interactions    CaseInteraction[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([status, slaDueAt])
+  @@index([customerId])
+}
+
+model CaseInteraction {
+  id             String              @id @default(cuid())
+  caseId         String
+  case           CustomerServiceCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  channel        String              @default("NOTE") // NOTE, PHONE, EMAIL, WHATSAPP, IN_PERSON, SOCIAL
+  direction      String              @default("INTERNAL") // INBOUND, OUTBOUND, INTERNAL
+  summary        String
+  nextFollowUpAt DateTime?
+  authorId       String?
+  author         Employee?           @relation(fields: [authorId], references: [id])
+  createdAt      DateTime            @default(now())
+
+  @@index([caseId, createdAt])
+}
+
+model TouristVatRefund {
+  id                        String                  @id @default(cuid())
+  refundNumber              String                  @unique
+  saleId                    String
+  sale                      Sale                    @relation(fields: [saleId], references: [id])
+  customerId                String?
+  customer                  Customer?               @relation(fields: [customerId], references: [id])
+  touristName               String
+  passportNumber            String
+  nationality               String
+  eTaxInvoiceNumber         String
+  departureDate             DateTime?
+  departurePoint            String?
+  departureMethod           String                  @default("AIR")
+  foreignVisitorConfirmed   Boolean                 @default(false)
+  nonCommercialUseConfirmed Boolean                 @default(false)
+  eligibleGoodsConfirmed    Boolean                 @default(false)
+  invoiceTotal              Float
+  vatAmount                 Float
+  administrationFee         Float                   @default(0)
+  refundableAmount          Float
+  status                    String                  @default("DRAFT") // DRAFT, ELIGIBLE, VALIDATED, PAID, REJECTED
+  eligibilityNotes          String?
+  validationRef             String?
+  refundMethod              String? // CARD, CASH, BANK
+  processedAt               DateTime?
+  createdById               String?
+  createdBy                 Employee?               @relation(fields: [createdById], references: [id])
+  events                    TouristVatRefundEvent[]
+  createdAt                 DateTime                @default(now())
+  updatedAt                 DateTime                @updatedAt
+
+  @@index([status, createdAt])
+  @@index([saleId])
+}
+
+model TouristVatRefundEvent {
+  id        String           @id @default(cuid())
+  refundId  String
+  refund    TouristVatRefund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+  action    String
+  note      String?
+  actorId   String?
+  actor     Employee?        @relation(fields: [actorId], references: [id])
+  createdAt DateTime         @default(now())
+
+  @@index([refundId, createdAt])
 }
 
 model SalePayment {
@@ -395,7 +533,7 @@ model SalePayment {
   sale          Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
   method        String // CASH, UPI, CARD, BANK
   amount        Float // always in shop base currency (after conversion)
-  currency      String   @default("INR") // payment currency received
+  currency      String   @default("AZN") // payment currency received
   foreignAmount Float? // amount in payment currency (null = same as amount)
   exchangeRate  Float    @default(1) // 1 foreign unit = exchangeRate base units
   reference     String?
@@ -422,14 +560,14 @@ model SaleItem {
 }
 
 model Expense {
-  id          String   @id @default(cuid())
-  category    String // RENT, UTILITIES, SALARY, MARKETING, TRANSPORT, OTHER
-  description String
-  amount      Float
-  expenseDate DateTime @default(now())
-  paymentMethod String @default("CASH")
-  notes       String?
-  createdAt   DateTime @default(now())
+  id            String   @id @default(cuid())
+  category      String // RENT, UTILITIES, SALARY, MARKETING, TRANSPORT, OTHER
+  description   String
+  amount        Float
+  expenseDate   DateTime @default(now())
+  paymentMethod String   @default("CASH")
+  notes         String?
+  createdAt     DateTime @default(now())
 }
 
 model Account {
@@ -445,14 +583,14 @@ model Account {
 }
 
 model JournalEntry {
-  id            String        @id @default(cuid())
-  entryNumber   String        @unique
-  entryDate     DateTime      @default(now())
-  narration     String
-  sourceType    String? // SALE, PURCHASE, EXPENSE, MANUAL, OPENING
-  sourceId      String?
-  lines         JournalLine[]
-  createdAt     DateTime      @default(now())
+  id          String        @id @default(cuid())
+  entryNumber String        @unique
+  entryDate   DateTime      @default(now())
+  narration   String
+  sourceType  String? // SALE, PURCHASE, EXPENSE, MANUAL, OPENING
+  sourceId    String?
+  lines       JournalLine[]
+  createdAt   DateTime      @default(now())
 }
 
 model JournalLine {
@@ -532,33 +670,33 @@ model TradeIn {
 }
 
 model CommissionEntry {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   employeeId String
-  employee   Employee  @relation(fields: [employeeId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id])
   saleId     String
-  sale       Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  saleAmount Float     @default(0)
-  ratePct    Float     @default(0)
-  amount     Float     @default(0)
-  status     String    @default("ACCRUED") // ACCRUED, PAID, VOID
-  createdAt  DateTime  @default(now())
+  sale       Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  saleAmount Float    @default(0)
+  ratePct    Float    @default(0)
+  amount     Float    @default(0)
+  status     String   @default("ACCRUED") // ACCRUED, PAID, VOID
+  createdAt  DateTime @default(now())
 }
 
 model MarketingCampaign {
-  id           String   @id @default(cuid())
-  name         String
-  channel      String // SMS, EMAIL
-  subject      String?
-  body         String
+  id             String    @id @default(cuid())
+  name           String
+  channel        String // SMS, EMAIL
+  subject        String?
+  body           String
   attachmentUrl  String?
   attachmentName String?
   attachmentType String?
-  audience     String   @default("ALL") // ALL, VIP, OPTED_IN
-  status       String   @default("DRAFT") // DRAFT, SENDING, SENT, PARTIAL, FAILED
-  sentCount    Int      @default(0)
-  failedCount  Int      @default(0)
-  lastError    String?
-  sentAt       DateTime?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  audience       String    @default("ALL") // ALL, VIP, OPTED_IN
+  status         String    @default("DRAFT") // DRAFT, SENDING, SENT, PARTIAL, FAILED
+  sentCount      Int       @default(0)
+  failedCount    Int       @default(0)
+  lastError      String?
+  sentAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }

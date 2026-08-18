@@ -8,12 +8,14 @@ export const ROLE_ROUTE_PREFIXES: Record<string, string[]> = {
     "/pos",
     "/sales",
     "/customers",
+    "/service",
+    "/vat-refunds",
     "/rates",
     "/suppliers",
     "/repairs",
     "/appraisals",
   ],
-  ACCOUNTANT: ["/", "/accounting", "/expenses", "/customers", "/sales", "/commissions"],
+  ACCOUNTANT: ["/", "/accounting", "/expenses", "/customers", "/sales", "/commissions", "/vat-refunds"],
   WORKSHOP: ["/", "/manufacturing", "/materials", "/inventory", "/repairs"],
 };
 
