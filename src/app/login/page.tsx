@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Gem } from "lucide-react";
 import { loginAction } from "@/lib/login-action";
+import { showAppSplash, SPLASH_ROUTE_DELAY_MS } from "@/components/AppLaunchSplash";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,11 +17,14 @@ export default function LoginPage() {
     setPending(true);
     const fd = new FormData(e.currentTarget);
     const result = await loginAction(fd);
-    setPending(false);
     if (result?.error) {
+      setPending(false);
       setError(result.error);
       return;
     }
+
+    showAppSplash();
+    await new Promise((resolve) => window.setTimeout(resolve, SPLASH_ROUTE_DELAY_MS));
     router.replace("/");
     router.refresh();
   }

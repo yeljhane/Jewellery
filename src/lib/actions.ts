@@ -141,7 +141,7 @@ async function assertSaleItemsMatchScope(
   }
 }
 
-function parseSalePayments(formData: FormData, totalAmount: number, baseCurrency = "INR") {
+function parseSalePayments(formData: FormData, totalAmount: number, baseCurrency = "AZN") {
   const base = baseCurrency.toUpperCase();
   let payments: IncomingPayment[] = [];
   const paymentsRaw = String(formData.get("paymentsJson") || "").trim();
@@ -686,7 +686,7 @@ export async function recordSalePayment(formData: FormData) {
 
   const amount = Math.min(parsed.amount, due);
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   const payment = await prisma.salePayment.create({
     data: {
@@ -1097,7 +1097,7 @@ export async function deletePurchaseOrder(formData: FormData) {
   redirect("/purchases");
 }
 
-export async function createSale(formData: FormData) {
+async function createSaleRecord(formData: FormData) {
   await requireRole(["OWNER", "MANAGER", "SALES"]);
   const txnType = String(formData.get("txnType") || "GOLD_SALE");
   const isReturn = txnType.endsWith("_RETURN");
@@ -1108,7 +1108,7 @@ export async function createSale(formData: FormData) {
   const taxPct =
     taxRaw !== null && String(taxRaw).trim() !== ""
       ? Number(taxRaw)
-      : (settings?.taxPct ?? 3);
+      : (settings?.taxPct ?? 18);
 
   const incoming = parseSaleItems(formData, metalRateFallback);
   if (incoming.length === 0) {
@@ -1124,7 +1124,7 @@ export async function createSale(formData: FormData) {
   const taxAmount = (taxable * taxPct) / 100;
   const totalAmount = taxable + taxAmount;
   const invoiceNumber = await nextInvoiceNumber();
-  const baseCurrency = settings?.currency || "INR";
+  const baseCurrency = settings?.currency || "AZN";
   const { payments, paidAmount, paymentMethod } = parseSalePayments(
     formData,
     totalAmount,
@@ -1134,6 +1134,7 @@ export async function createSale(formData: FormData) {
 
   const sale = await prisma.sale.create({
     data: {
+      offlineClientTxnId: String(formData.get("offlineClientTxnId") || "").trim() || null,
       invoiceNumber,
       customerId,
       customerName,
@@ -1184,6 +1185,23 @@ export async function createSale(formData: FormData) {
     await accrueSaleCommission(sale.id, sale.employeeId, sale.totalAmount);
   }
 
+  return sale;
+}
+
+export async function syncOfflineSale(formData: FormData) {
+  const sale = await createSaleRecord(formData);
+  revalidatePath("/sales");
+  revalidatePath("/inventory");
+  revalidatePath("/inventory/serials");
+  revalidatePath("/commissions");
+  revalidatePath("/accounting");
+  revalidatePath("/");
+  return { id: sale.id, invoiceNumber: sale.invoiceNumber };
+}
+
+export async function createSale(formData: FormData) {
+  const sale = await createSaleRecord(formData);
+
   revalidatePath("/sales");
   revalidatePath("/inventory");
   revalidatePath("/inventory/serials");
@@ -1224,7 +1242,7 @@ export async function updateSale(formData: FormData) {
   const taxPct =
     taxRaw !== null && String(taxRaw).trim() !== ""
       ? Number(taxRaw)
-      : (settingsRow?.taxPct ?? 3);
+      : (settingsRow?.taxPct ?? 18);
   const incoming = parseSaleItems(formData, metalRateFallback);
   if (incoming.length === 0) throw new Error("Add at least one item to the sale list.");
   await assertSaleItemsMatchScope(txnType, incoming);
@@ -1236,7 +1254,7 @@ export async function updateSale(formData: FormData) {
   const taxable = Math.max(0, subtotal - discount);
   const taxAmount = (taxable * taxPct) / 100;
   const totalAmount = taxable + taxAmount;
-  const baseCurrency = settingsRow?.currency || "INR";
+  const baseCurrency = settingsRow?.currency || "AZN";
   const { payments, paidAmount, paymentMethod } = parseSalePayments(
     formData,
     totalAmount,
@@ -1390,10 +1408,19 @@ export async function updateSettings(formData: FormData) {
     phone: (formData.get("phone") as string)?.trim() || null,
     email: (formData.get("email") as string)?.trim() || null,
     gstin: (formData.get("gstin") as string)?.trim() || null,
-    currency: String(formData.get("currency") || "INR").trim().toUpperCase() || "INR",
+    currency: String(formData.get("currency") || "AZN").trim().toUpperCase() || "AZN",
+    interfaceLanguage: String(formData.get("interfaceLanguage") || "EN").trim().toUpperCase(),
+    slaCriticalHours: Math.max(1, Number(formData.get("slaCriticalHours") || 4)),
+    slaHighHours: Math.max(1, Number(formData.get("slaHighHours") || 8)),
+    slaNormalHours: Math.max(1, Number(formData.get("slaNormalHours") || 24)),
+    slaLowHours: Math.max(1, Number(formData.get("slaLowHours") || 72)),
+    touristVatRefundEnabled: formData.get("touristVatRefundEnabled") !== "0",
+    taxFreeMerchantRegistered: formData.get("taxFreeMerchantRegistered") === "1",
+    vatRefundMinSale: Math.max(0, Number(formData.get("vatRefundMinSale") || 300)),
+    vatRefundFeePct: Math.min(100, Math.max(0, Number(formData.get("vatRefundFeePct") || 20))),
     makingChargePct: Number(formData.get("makingChargePct") || 12),
     wastagePct: Number(formData.get("wastagePct") || 2),
-    taxPct: Number(formData.get("taxPct") || 3),
+    taxPct: Number(formData.get("taxPct") || 18),
     commissionPct: Number(formData.get("commissionPct") || 1),
     dualAuthAdjustments: formData.get("dualAuthAdjustments") !== "0",
     dualAuthTransfers: formData.get("dualAuthTransfers") !== "0",

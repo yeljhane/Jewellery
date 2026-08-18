@@ -38,7 +38,7 @@ export default async function EditSalePage({
     rates["GOLD-22K"] ||
     rates["GOLD-18K"] ||
     0;
-  const baseCurrency = settings?.currency ?? "INR";
+  const baseCurrency = settings?.currency ?? "AZN";
   const defaultTaxPct = settings?.taxPct ?? 3;
 
   const soldIds = new Set(

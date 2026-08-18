@@ -24,7 +24,7 @@ export default async function ProfitLossPage({
     prisma.shopSettings.findFirst(),
   ]);
   const period = formatPeriodLabel(from, to);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   return (

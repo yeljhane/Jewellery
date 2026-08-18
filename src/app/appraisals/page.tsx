@@ -33,7 +33,7 @@ export default async function AppraisalsPage({
       take: 100,
     }),
   ]);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   return (
     <div>

@@ -4,7 +4,7 @@ import { recordSalePayment, updateCustomer } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { saleTxnLabel } from "@/lib/txn-types";
-import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +21,14 @@ export default async function CustomerDetailPage({
         include: { payments: true },
         orderBy: { saleDate: "desc" },
       },
+      serviceCases: { orderBy: { createdAt: "desc" }, take: 20 },
+      vatRefunds: { orderBy: { createdAt: "desc" }, take: 20 },
     },
   });
   if (!customer) notFound();
 
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   const openSales = customer.sales.filter(
@@ -170,6 +172,37 @@ export default async function CustomerDetailPage({
                 </tr>
               ))}
             </DataTable>
+          )}
+        </Card>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card title="Customer-service history">
+          {customer.serviceCases.length === 0 ? (
+            <EmptyState title="No service cases" description="Complaints and enquiries are tracked separately from repairs." />
+          ) : (
+            <div className="space-y-3">
+              {customer.serviceCases.map((serviceCase) => (
+                <Link key={serviceCase.id} href={`/service/${serviceCase.id}`} className="flex items-center justify-between rounded-xl border border-[var(--border)] p-3 hover:bg-stone-50">
+                  <div><p className="font-medium text-[var(--gold-deep)]">{serviceCase.caseNumber}</p><p className="text-xs text-[var(--muted)]">{serviceCase.subject}</p></div>
+                  <Badge>{serviceCase.status.replaceAll("_", " ")}</Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Card>
+        <Card title="Tourist VAT-refund history">
+          {customer.vatRefunds.length === 0 ? (
+            <EmptyState title="No VAT-refund claims" />
+          ) : (
+            <div className="space-y-3">
+              {customer.vatRefunds.map((refund) => (
+                <Link key={refund.id} href={`/vat-refunds/${refund.id}`} className="flex items-center justify-between rounded-xl border border-[var(--border)] p-3 hover:bg-stone-50">
+                  <div><p className="font-medium text-[var(--gold-deep)]">{refund.refundNumber}</p><p className="text-xs text-[var(--muted)]">{money(refund.refundableAmount)}</p></div>
+                  <Badge>{refund.status}</Badge>
+                </Link>
+              ))}
+            </div>
           )}
         </Card>
       </div>

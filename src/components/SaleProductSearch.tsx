@@ -37,7 +37,7 @@ type CartLine = {
   stockQty: number;
 };
 
-function formatMoney(n: number, currency = "INR") {
+function formatMoney(n: number, currency = "AZN") {
   try {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -56,7 +56,7 @@ export function SaleProductSearch({
   initialDiscount = 0,
   initialTaxPct = 3,
   initialPayments,
-  baseCurrency = "INR",
+  baseCurrency = "AZN",
   jewelleryScope = "ALL",
 }: {
   products: SaleProductOption[];

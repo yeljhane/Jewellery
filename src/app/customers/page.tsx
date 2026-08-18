@@ -21,7 +21,7 @@ export default async function CustomersPage({
   const onlyOutstanding = outstanding === "1";
 
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   const customers = await prisma.customer.findMany({
     where: query

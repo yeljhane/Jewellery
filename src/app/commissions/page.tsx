@@ -17,7 +17,7 @@ export default async function CommissionsPage() {
       take: 200,
     }),
   ]);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const accrued = entries
     .filter((e) => e.status === "ACCRUED")
     .reduce((s, e) => s + e.amount, 0);

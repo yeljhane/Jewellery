@@ -21,7 +21,7 @@ export default async function RepairDetailPage({
     prisma.shopSettings.findFirst(),
   ]);
   if (!repair) notFound();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   return (
     <div>

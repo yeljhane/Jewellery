@@ -23,7 +23,7 @@ export default async function RepairsPage() {
       take: 100,
     }),
   ]);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   return (
     <div>
