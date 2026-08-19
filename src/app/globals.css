@@ -54,6 +54,23 @@ a {
   border-radius: 999px;
 }
 
+.sidebar-nav {
+  scrollbar-color: rgba(232, 213, 163, 0.5) transparent;
+  scrollbar-width: thin;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(232, 213, 163, 0.5);
+}
+
 /* Initial app launch splash */
 .app-launch-splash {
   position: fixed;

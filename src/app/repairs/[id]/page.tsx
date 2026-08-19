@@ -4,6 +4,7 @@ import { updateRepairStatus } from "@/lib/jewelry-pos-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button, Card, Input, PageHeader, Select } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -70,7 +71,7 @@ export default async function RepairDetailPage({
           </dl>
         </Card>
         <Card title="Update Status">
-          <form action={updateRepairStatus} className="space-y-3">
+          <ActionForm action={updateRepairStatus} successTitle="Repair updated" successMessage="The repair status was updated successfully." className="space-y-3">
             <input type="hidden" name="id" value={repair.id} />
             <Select label="Status" name="status" defaultValue={repair.status}>
               <option value="RECEIVED">Received</option>
@@ -94,7 +95,7 @@ export default async function RepairDetailPage({
               defaultValue={repair.materialCost || ""}
             />
             <Button type="submit">Save</Button>
-          </form>
+          </ActionForm>
         </Card>
       </div>
     </div>

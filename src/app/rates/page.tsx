@@ -2,6 +2,7 @@ import { createMetalRate } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export default async function RatesPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Post New Rate" className="lg:col-span-1">
-          <form action={createMetalRate} className="space-y-3">
+          <ActionForm action={createMetalRate} successMessage="The metal rate was added successfully." className="space-y-3">
             <Select label="Metal" name="metal" defaultValue="GOLD">
               <option value="GOLD">Gold</option>
               <option value="SILVER">Silver</option>
@@ -28,7 +29,7 @@ export default async function RatesPage() {
             <Input label="Purity" name="purity" placeholder="22K" required />
             <Input label="Rate per Gram" name="ratePerGram" type="number" step="0.01" required />
             <Button type="submit">Update Rate</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Rate History" className="lg:col-span-2">
           {rates.length === 0 ? (

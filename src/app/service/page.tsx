@@ -3,6 +3,7 @@ import { createCustomerServiceCase } from "@/lib/customer-service-actions";
 import { normalizeLanguage } from "@/lib/localization";
 import { prisma } from "@/lib/prisma";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, StatCard, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,7 @@ export default async function CustomerServicePage() {
 
       <div className="grid gap-6 xl:grid-cols-[380px_1fr]">
         <Card title="Open a case">
-          <form action={createCustomerServiceCase} className="space-y-3">
+          <ActionForm action={createCustomerServiceCase} successMessage="The customer-service case was added successfully." className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <Select label="Case type" name="type" defaultValue="ENQUIRY">
                 <option value="COMPLAINT">Complaint</option>
@@ -88,7 +89,7 @@ export default async function CustomerServicePage() {
             <Input label="Subject" name="subject" required />
             <Textarea label="Description" name="description" rows={5} required />
             <Button type="submit">Create case</Button>
-          </form>
+          </ActionForm>
         </Card>
 
         <Card title="Case queue">

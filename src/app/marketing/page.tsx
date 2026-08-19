@@ -13,6 +13,7 @@ import {
   Textarea,
 } from "@/components/ui";
 import { SendCampaignButton } from "@/components/SendCampaignButton";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +70,7 @@ export default async function MarketingPage() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="New Collection Email" className="lg:col-span-1">
-          <form action={createMarketingCampaign} className="space-y-3">
+          <ActionForm action={createMarketingCampaign} successMessage="The email campaign was added successfully." className="space-y-3" encType="multipart/form-data">
             <Input
               label="Campaign name"
               name="name"
@@ -103,7 +104,7 @@ export default async function MarketingPage() {
               Optional PDF, JPG, PNG or WebP attachment. Maximum 15 MB.
             </p>
             <Button type="submit">Save Draft</Button>
-          </form>
+          </ActionForm>
         </Card>
 
         <Card title="Email Campaigns" className="lg:col-span-2">
@@ -165,14 +166,14 @@ export default async function MarketingPage() {
                     </td>
                     <td className="px-3 py-3">
                       {canSend ? (
-                        <form action={sendMarketingCampaign}>
+                        <ActionForm action={sendMarketingCampaign} successTitle="Campaign sent" successMessage="The email campaign delivery was completed.">
                           <input type="hidden" name="id" value={campaign.id} />
                           <SendCampaignButton
                             recipientCount={recipientCount}
                             retry={campaign.status === "FAILED"}
                             disabled={!smtpConfigured || recipientCount === 0}
                           />
-                        </form>
+                        </ActionForm>
                       ) : campaign.channel !== "EMAIL" ? (
                         <span className="text-xs text-[var(--muted)]">Legacy SMS draft</span>
                       ) : (

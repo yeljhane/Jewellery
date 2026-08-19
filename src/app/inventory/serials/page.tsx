@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createInventorySerialSecure, adjustInventoryItem } from "@/lib/inventory-security-actions";
 import { prisma } from "@/lib/prisma";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -63,7 +64,7 @@ export default async function SerialsPage({
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Register Serials" className="lg:col-span-1">
-          <form action={createInventorySerialSecure} className="space-y-3">
+          <ActionForm action={createInventorySerialSecure} successMessage="The serialized inventory data was added successfully." className="space-y-3">
             <Select label="Product" name="productId" required defaultValue="">
               <option value="">Select product</option>
               {products.map((p) => (
@@ -87,7 +88,7 @@ export default async function SerialsPage({
             <Input label="Cost" name="costPrice" type="number" step="0.01" />
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Add Serials</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Piece Register" className="lg:col-span-2">
           <form className="mb-4 flex flex-wrap gap-2">
@@ -133,7 +134,7 @@ export default async function SerialsPage({
       </div>
 
       <Card title="Sensitive status adjustment (dual auth)" className="mt-6">
-        <form action={adjustInventoryItem} className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+        <ActionForm action={adjustInventoryItem} successTitle="Inventory updated" successMessage="The serialized item's status was updated successfully." className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           <Select label="Serial" name="inventoryItemId" required defaultValue="">
             <option value="">Select</option>
             {serials.map((s) => (
@@ -166,7 +167,7 @@ export default async function SerialsPage({
           <div className="flex items-end">
             <Button type="submit">Apply adjustment</Button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

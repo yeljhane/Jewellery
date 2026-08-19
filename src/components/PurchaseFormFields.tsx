@@ -8,6 +8,7 @@ import {
 } from "@/lib/txn-types";
 import { isDiamondProduct } from "@/lib/product-helpers";
 import { Button, Input, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 import {
   PurchaseProductPicker,
   type PurchaseProductOption,
@@ -54,7 +55,7 @@ export function PurchaseFormFields({
   }, [products, finished, jewelleryType]);
 
   return (
-    <form action={action} className="grid gap-4 md:grid-cols-2">
+    <ActionForm action={action} successMessage="The purchase order was added successfully." className="grid gap-4 md:grid-cols-2">
       {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
 
       <Select
@@ -171,6 +172,6 @@ export function PurchaseFormFields({
       <div className="md:col-span-2">
         <Button type="submit">{submitLabel}</Button>
       </div>
-    </form>
+    </ActionForm>
   );
 }

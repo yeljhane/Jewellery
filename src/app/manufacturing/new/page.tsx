@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createManufacturingJob } from "@/lib/actions";
+import { ActionForm } from "@/components/ActionForm";
 import { prisma } from "@/lib/prisma";
 import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
 
@@ -28,7 +29,7 @@ export default async function NewJobPage() {
         }
       />
       <Card>
-        <form action={createManufacturingJob} className="grid gap-4 md:grid-cols-2">
+        <ActionForm action={createManufacturingJob} successMessage="The manufacturing job was added successfully." className="grid gap-4 md:grid-cols-2">
           <Input label="Design Name" name="designName" placeholder="Custom Halo Ring" required />
           <Select label="Karigar" name="karigarId" defaultValue="">
             <option value="">Unassigned</option>
@@ -84,7 +85,7 @@ export default async function NewJobPage() {
           <div className="md:col-span-2">
             <Button type="submit">Create Job Card</Button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

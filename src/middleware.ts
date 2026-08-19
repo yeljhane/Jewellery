@@ -5,9 +5,11 @@ import { authConfig } from "@/lib/auth.config";
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const response = NextResponse.next();
-  response.headers.set("x-pathname", req.nextUrl.pathname);
-  return response;
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-pathname", req.nextUrl.pathname);
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 });
 
 export const config = {

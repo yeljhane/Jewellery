@@ -7,6 +7,7 @@ import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/
 import { ImagePreviewFields } from "@/components/ImagePreviewFields";
 import { DeleteButton } from "@/components/ConfirmForm";
 import { BarcodeSvg } from "@/components/BarcodeSvg";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -58,8 +59,10 @@ export default async function EditProductPage({
         </div>
       </Card>
       <Card>
-        <form
+        <ActionForm
           action={updateProduct}
+          successTitle="Inventory updated"
+          successMessage="The inventory item was updated successfully."
           className="grid gap-4 md:grid-cols-2"
           encType="multipart/form-data"
         >
@@ -172,7 +175,7 @@ export default async function EditProductPage({
               Cancel
             </Link>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

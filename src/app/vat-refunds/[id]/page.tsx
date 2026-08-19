@@ -5,6 +5,7 @@ import { updateTouristVatRefundStatus } from "@/lib/customer-service-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Badge, Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -81,7 +82,7 @@ export default async function TouristVatRefundPage({ params }: { params: Promise
 
           {nextStatuses.length > 0 ? (
             <Card title="Advance workflow">
-              <form action={updateTouristVatRefundStatus} className="space-y-3">
+              <ActionForm action={updateTouristVatRefundStatus} successTitle="Claim updated" successMessage="The VAT-refund claim was updated successfully." className="space-y-3">
                 <input type="hidden" name="id" value={refund.id} />
                 <Select label="Next status" name="status" required defaultValue={nextStatuses[0]}>
                   {nextStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
@@ -94,7 +95,7 @@ export default async function TouristVatRefundPage({ params }: { params: Promise
                 ) : null}
                 <Textarea label="Compliance note" name="note" rows={3} />
                 <Button type="submit">Update claim</Button>
-              </form>
+              </ActionForm>
             </Card>
           ) : null}
         </div>

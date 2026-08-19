@@ -3,6 +3,7 @@ import { startStockCount } from "@/lib/inventory-security-actions";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { Badge, Button, Card, DataTable, EmptyState, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,7 @@ export default async function StockCountsPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Start count" className="lg:col-span-1">
-          <form action={startStockCount} className="space-y-3">
+          <ActionForm action={startStockCount} successMessage="The stock count was started successfully." className="space-y-3">
             <Select label="Location" name="locationId" defaultValue="">
               <option value="">All locations</option>
               {locations.map((l) => (
@@ -41,7 +42,7 @@ export default async function StockCountsPage() {
             </Select>
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Start count</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Count history" className="lg:col-span-2">
           {counts.length === 0 ? (

@@ -3,6 +3,7 @@ import { createRepairOrder } from "@/lib/jewelry-pos-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function RepairsPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="New Ticket" className="lg:col-span-1">
-          <form action={createRepairOrder} className="space-y-3">
+          <ActionForm action={createRepairOrder} successMessage="The repair ticket was added successfully." className="space-y-3">
             <Select label="Customer" name="customerId" defaultValue="">
               <option value="">Walk-in / other</option>
               {customers.map((c) => (
@@ -72,7 +73,7 @@ export default async function RepairsPage() {
             <Input label="Due date" name="dueDate" type="date" />
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Create Ticket</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Open & Recent" className="lg:col-span-2">
           {repairs.length === 0 ? (

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Badge, Button, Card, DataTable, EmptyState, PageHeader, StatCard } from "@/components/ui";
 import { OfflineQueuePanel } from "@/components/OfflineQueuePanel";
 import { ConfirmForm } from "@/components/ConfirmForm";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -50,10 +51,10 @@ export default async function OfflinePosPage() {
                     <p className="mt-2 font-mono text-[11px] text-[var(--muted)]">{transaction.clientTxnId}</p>
                   </div>
                   <div className="flex gap-2">
-                    <form action={resolveOfflinePosTransaction}>
+                    <ActionForm action={resolveOfflinePosTransaction} successTitle="Synchronization retried" successMessage="The offline transaction was processed again.">
                       <input type="hidden" name="id" value={transaction.id} /><input type="hidden" name="resolution" value="RETRY" />
                       <Button type="submit" variant="secondary">Retry after stock update</Button>
-                    </form>
+                    </ActionForm>
                     <ConfirmForm action={resolveOfflinePosTransaction} message="Discard this offline import? The server record will remain in history, but it will no longer synchronize.">
                       <input type="hidden" name="id" value={transaction.id} /><input type="hidden" name="resolution" value="DISCARD" />
                       <Button type="submit" variant="danger">Discard import</Button>

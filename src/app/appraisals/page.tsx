@@ -2,6 +2,7 @@ import { createAppraisal, createTradeIn } from "@/lib/jewelry-pos-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,7 @@ export default async function AppraisalsPage({
       {!showTradeIns ? (
         <div className="grid gap-6 lg:grid-cols-3">
           <Card title="New Appraisal" className="lg:col-span-1">
-            <form action={createAppraisal} className="space-y-3">
+            <ActionForm action={createAppraisal} successMessage="The appraisal was added successfully." className="space-y-3">
               <Select label="Customer" name="customerId" defaultValue="">
                 <option value="">Walk-in</option>
                 {customers.map((c) => (
@@ -92,7 +93,7 @@ export default async function AppraisalsPage({
               </Select>
               <Textarea label="Notes" name="notes" rows={2} />
               <Button type="submit">Save Appraisal</Button>
-            </form>
+            </ActionForm>
           </Card>
           <Card title="Recent Appraisals" className="lg:col-span-2">
             {appraisals.length === 0 ? (
@@ -115,7 +116,7 @@ export default async function AppraisalsPage({
       ) : (
         <div className="grid gap-6 lg:grid-cols-3">
           <Card title="Record Trade-In" className="lg:col-span-1">
-            <form action={createTradeIn} className="space-y-3">
+            <ActionForm action={createTradeIn} successMessage="The trade-in was added successfully." className="space-y-3">
               <Select label="Customer" name="customerId" defaultValue="">
                 <option value="">Walk-in</option>
                 {customers.map((c) => (
@@ -140,7 +141,7 @@ export default async function AppraisalsPage({
               </Select>
               <Textarea label="Notes" name="notes" rows={2} />
               <Button type="submit">Save Trade-In</Button>
-            </form>
+            </ActionForm>
           </Card>
           <Card title="Trade-In Register" className="lg:col-span-2">
             {tradeIns.length === 0 ? (

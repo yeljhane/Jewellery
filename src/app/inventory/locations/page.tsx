@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireOwnerOrManager } from "@/lib/auth";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import Link from "next/link";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export default async function StockLocationsPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add location" className="lg:col-span-1">
-          <form action={createStockLocation} className="space-y-3">
+          <ActionForm action={createStockLocation} successMessage="The stock location was added successfully." className="space-y-3">
             <Input label="Name" name="name" required placeholder="Main showcase A" />
             <Select label="Kind" name="kind" defaultValue="SHOWCASE">
               <option value="SHOWCASE">Showcase</option>
@@ -37,7 +38,7 @@ export default async function StockLocationsPage() {
             </Select>
             <Textarea label="Description" name="description" rows={2} />
             <Button type="submit">Save location</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Directory" className="lg:col-span-2">
           {locations.length === 0 ? (

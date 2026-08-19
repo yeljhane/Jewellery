@@ -4,6 +4,7 @@ import { normalizeLanguage } from "@/lib/localization";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, StatCard, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -59,7 +60,7 @@ export default async function TouristVatRefundsPage() {
           {settings?.touristVatRefundEnabled === false || !settings?.taxFreeMerchantRegistered ? (
             <EmptyState title="Workflow unavailable" description="Enable the workflow and confirm tax-free merchant registration in Settings before creating claims." />
           ) : (
-            <form action={createTouristVatRefund} className="space-y-3">
+            <ActionForm action={createTouristVatRefund} successMessage="The tourist VAT-refund claim was added successfully." className="space-y-3">
               <Select label="Sales invoice" name="saleId" required defaultValue="">
                 <option value="" disabled>Select an eligible invoice</option>
                 {eligibleSales.map((sale) => (
@@ -83,7 +84,7 @@ export default async function TouristVatRefundsPage() {
               <Textarea label="Eligibility notes" name="eligibilityNotes" rows={3} />
               <Button type="submit" disabled={eligibleSales.length === 0}>Create eligible claim</Button>
               {eligibleSales.length === 0 ? <p className="text-xs text-[var(--muted)]">No unused eligible sales invoices are available.</p> : null}
-            </form>
+            </ActionForm>
           )}
         </Card>
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { addCaseInteraction, updateCustomerServiceCase } from "@/lib/customer-service-actions";
 import { prisma } from "@/lib/prisma";
 import { Badge, Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -51,7 +52,7 @@ export default async function CustomerServiceCasePage({ params }: { params: Prom
           </Card>
 
           <Card title="Interaction history">
-            <form action={addCaseInteraction} className="mb-6 grid gap-3 rounded-xl border border-[var(--border)] bg-stone-50/70 p-4 sm:grid-cols-2">
+            <ActionForm action={addCaseInteraction} successMessage="The interaction was added successfully." className="mb-6 grid gap-3 rounded-xl border border-[var(--border)] bg-stone-50/70 p-4 sm:grid-cols-2">
               <input type="hidden" name="caseId" value={serviceCase.id} />
               <Select label="Channel" name="channel" defaultValue="NOTE">
                 <option value="NOTE">Internal note</option><option value="PHONE">Phone</option>
@@ -64,7 +65,7 @@ export default async function CustomerServiceCasePage({ params }: { params: Prom
               <div className="sm:col-span-2"><Textarea label="Summary" name="summary" rows={3} required /></div>
               <Input label="Next follow-up" name="nextFollowUpAt" type="datetime-local" />
               <div className="flex items-end"><Button type="submit">Add interaction</Button></div>
-            </form>
+            </ActionForm>
             <div className="space-y-3">
               {serviceCase.interactions.map((interaction) => (
                 <article key={interaction.id} className="rounded-xl border border-[var(--border)] p-4">
@@ -81,7 +82,7 @@ export default async function CustomerServiceCasePage({ params }: { params: Prom
         </div>
 
         <Card title="Ownership and status" className="h-fit">
-          <form action={updateCustomerServiceCase} className="space-y-3">
+          <ActionForm action={updateCustomerServiceCase} successTitle="Case updated" successMessage="The customer-service case was updated successfully." className="space-y-3">
             <input type="hidden" name="id" value={serviceCase.id} />
             <Select label="Status" name="status" defaultValue={serviceCase.status}>
               <option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option>
@@ -95,7 +96,7 @@ export default async function CustomerServiceCasePage({ params }: { params: Prom
               {staff.map((employee) => <option key={employee.id} value={employee.id}>{employee.name}</option>)}
             </Select>
             <Button type="submit">Save case</Button>
-          </form>
+          </ActionForm>
         </Card>
       </div>
     </div>

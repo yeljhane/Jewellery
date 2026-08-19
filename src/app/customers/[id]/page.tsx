@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { saleTxnLabel } from "@/lib/txn-types";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,7 @@ export default async function CustomerDetailPage({
 
       {openSales.length > 0 ? (
         <Card title="Collect payment (udhaar)" className="mb-6">
-          <form action={recordSalePayment} className="grid max-w-3xl gap-3 md:grid-cols-4">
+          <ActionForm action={recordSalePayment} successTitle="Payment recorded" successMessage="The customer payment was recorded successfully." className="grid max-w-3xl gap-3 md:grid-cols-4">
             <Select label="Invoice" name="saleId" required defaultValue={openSales[0].id}>
               {openSales.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -116,7 +117,7 @@ export default async function CustomerDetailPage({
             <div className="md:col-span-4">
               <Button type="submit">Record collection</Button>
             </div>
-          </form>
+          </ActionForm>
         </Card>
       ) : null}
 
@@ -208,7 +209,7 @@ export default async function CustomerDetailPage({
       </div>
 
       <Card title="Edit customer" className="mt-6">
-        <form action={updateCustomer} className="grid max-w-3xl gap-3 md:grid-cols-2">
+        <ActionForm action={updateCustomer} successTitle="Customer updated" successMessage="The customer data was updated successfully." className="grid max-w-3xl gap-3 md:grid-cols-2">
           <input type="hidden" name="id" value={customer.id} />
           <Input label="Name" name="name" defaultValue={customer.name} required />
           <Input label="Phone" name="phone" defaultValue={customer.phone ?? ""} />
@@ -238,7 +239,7 @@ export default async function CustomerDetailPage({
             <Textarea label="Notes" name="notes" rows={2} defaultValue={customer.notes ?? ""} />
           </div>
           <Button type="submit">Save profile</Button>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

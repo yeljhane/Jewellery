@@ -10,6 +10,7 @@ import {
   type SaleProductOption,
 } from "@/components/SaleProductSearch";
 import { queueOfflineSale, syncOfflineTransaction } from "@/lib/offline-pos-client";
+import { ActionForm } from "@/components/ActionForm";
 
 export function SaleFormFields({
   action,
@@ -114,7 +115,7 @@ export function SaleFormFields({
   }
 
   return (
-    <form action={action} onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
+    <ActionForm action={action} onSubmit={handleSubmit} successMessage="The sale was added successfully." className="grid gap-4 md:grid-cols-2">
       {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
 
       <Select
@@ -201,6 +202,6 @@ export function SaleFormFields({
           {offlineMessage}
         </div>
       ) : null}
-    </form>
+    </ActionForm>
   );
 }

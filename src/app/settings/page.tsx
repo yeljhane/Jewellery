@@ -6,6 +6,7 @@ import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/
 import { CompanyLogoField } from "@/components/CompanyLogoField";
 import { BackupRestorePanel } from "@/components/BackupRestorePanel";
 import { LANGUAGE_OPTIONS } from "@/lib/localization";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,7 @@ export default async function SettingsPage() {
         description="Company profile, logo, default jewellery calculation percentages, tax, and backups."
       />
 
-      <form action={updateSettings} className="space-y-6">
+      <ActionForm action={updateSettings} successTitle="Settings saved" successMessage="The application settings were updated successfully." className="space-y-6">
         <Card title="Company">
           <div className="grid max-w-3xl gap-4 md:grid-cols-2">
             <CompanyLogoField currentLogoUrl={settings?.logoUrl} />
@@ -213,7 +214,7 @@ export default async function SettingsPage() {
         </Card>
 
         <Button type="submit">Save Settings</Button>
-      </form>
+      </ActionForm>
 
       {showBackup ? (
         <div className="mt-8">
