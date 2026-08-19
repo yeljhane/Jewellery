@@ -6,6 +6,7 @@ import { formatCurrency, formatDate, formatWeight } from "@/lib/utils";
 import { purchaseTxnLabel } from "@/lib/txn-types";
 import { Badge, Button, Card, DataTable, PageHeader } from "@/components/ui";
 import { DeleteButton } from "@/components/ConfirmForm";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -79,12 +80,12 @@ export default async function PurchaseDetailPage({
             {formatCurrency(po.totalAmount)}
           </p>
           {po.status !== "RECEIVED" && po.status !== "CANCELLED" ? (
-            <form action={receivePurchaseOrder} className="mt-3">
+            <ActionForm action={receivePurchaseOrder} successTitle="Purchase received" successMessage="The purchase order was received successfully." className="mt-3">
               <input type="hidden" name="id" value={po.id} />
               <Button type="submit" variant="secondary" className="!px-3 !py-1.5 text-xs">
                 Mark Received
               </Button>
-            </form>
+            </ActionForm>
           ) : null}
         </Card>
       </div>

@@ -5,10 +5,13 @@ import { isOwnerOrManager } from "@/lib/permissions";
 import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { CompanyLogoField } from "@/components/CompanyLogoField";
 import { BackupRestorePanel } from "@/components/BackupRestorePanel";
+import { LANGUAGE_OPTIONS } from "@/lib/localization";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
 const CURRENCIES = [
+  { value: "AZN", label: "AZN — Azərbaycan manatı" },
   { value: "INR", label: "INR — Indian Rupee" },
   { value: "USD", label: "USD — US Dollar" },
   { value: "AED", label: "AED — UAE Dirham" },
@@ -30,7 +33,7 @@ export default async function SettingsPage() {
         description="Company profile, logo, default jewellery calculation percentages, tax, and backups."
       />
 
-      <form action={updateSettings} encType="multipart/form-data" className="space-y-6">
+      <ActionForm action={updateSettings} successTitle="Settings saved" successMessage="The application settings were updated successfully." className="space-y-6">
         <Card title="Company">
           <div className="grid max-w-3xl gap-4 md:grid-cols-2">
             <CompanyLogoField currentLogoUrl={settings?.logoUrl} />
@@ -73,7 +76,7 @@ export default async function SettingsPage() {
             <Select
               label="Currency"
               name="currency"
-              defaultValue={settings?.currency ?? "INR"}
+              defaultValue={settings?.currency ?? "AZN"}
               required
             >
               {CURRENCIES.map((c) => (
@@ -82,7 +85,72 @@ export default async function SettingsPage() {
                 </option>
               ))}
             </Select>
+            <Select
+              label="Interface language"
+              name="interfaceLanguage"
+              defaultValue={settings?.interfaceLanguage ?? "EN"}
+              required
+            >
+              {LANGUAGE_OPTIONS.map((language) => (
+                <option key={language.value} value={language.value}>
+                  {language.label}
+                </option>
+              ))}
+            </Select>
           </div>
+        </Card>
+
+        <Card title="Customer-service SLA">
+          <div className="grid max-w-3xl gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Input label="Critical hours" name="slaCriticalHours" type="number" min="1" defaultValue={settings?.slaCriticalHours ?? 4} />
+            <Input label="High hours" name="slaHighHours" type="number" min="1" defaultValue={settings?.slaHighHours ?? 8} />
+            <Input label="Normal hours" name="slaNormalHours" type="number" min="1" defaultValue={settings?.slaNormalHours ?? 24} />
+            <Input label="Low hours" name="slaLowHours" type="number" min="1" defaultValue={settings?.slaLowHours ?? 72} />
+          </div>
+          <p className="mt-3 text-xs text-[var(--muted)]">
+            New complaints, enquiries, and service tickets receive an automatic deadline based on priority.
+          </p>
+        </Card>
+
+        <Card title="Azerbaijan tourist VAT refund">
+          <div className="grid max-w-3xl gap-4 md:grid-cols-2">
+            <Select
+              label="Workflow"
+              name="touristVatRefundEnabled"
+              defaultValue={settings?.touristVatRefundEnabled === false ? "0" : "1"}
+            >
+              <option value="1">Enabled</option>
+              <option value="0">Disabled</option>
+            </Select>
+            <Select
+              label="Tax-free merchant registration"
+              name="taxFreeMerchantRegistered"
+              defaultValue={settings?.taxFreeMerchantRegistered ? "1" : "0"}
+            >
+              <option value="1">Registered and authorized</option>
+              <option value="0">Not yet registered</option>
+            </Select>
+            <Input
+              label="Minimum eligible invoice (AZN)"
+              name="vatRefundMinSale"
+              type="number"
+              min="0"
+              step="0.01"
+              defaultValue={settings?.vatRefundMinSale ?? 300}
+            />
+            <Input
+              label="Operator service fee (% of VAT)"
+              name="vatRefundFeePct"
+              type="number"
+              min="0"
+              max="100"
+              step="0.1"
+              defaultValue={settings?.vatRefundFeePct ?? 20}
+            />
+          </div>
+          <p className="mt-3 text-xs text-[var(--muted)]">
+            Set the current statutory or provider threshold here. The workflow records eligibility, validation, payment, and an immutable event history; your compliance team remains responsible for current legal rules.
+          </p>
         </Card>
 
         <Card title="Defaults">
@@ -107,7 +175,7 @@ export default async function SettingsPage() {
               type="number"
               step="0.1"
               min="0"
-              defaultValue={settings?.taxPct ?? 3}
+              defaultValue={settings?.taxPct ?? 18}
             />
             <Input
               label="Default Staff Commission %"
@@ -146,7 +214,7 @@ export default async function SettingsPage() {
         </Card>
 
         <Button type="submit">Save Settings</Button>
-      </form>
+      </ActionForm>
 
       {showBackup ? (
         <div className="mt-8">

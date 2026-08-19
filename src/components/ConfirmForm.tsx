@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export function ConfirmForm({
   action,
@@ -14,15 +15,17 @@ export function ConfirmForm({
   className?: string;
 }) {
   return (
-    <form
+    <ActionForm
       action={action}
+      successTitle="Action completed"
+      successMessage="The requested change was completed successfully."
       className={className}
       onSubmit={(e) => {
         if (!window.confirm(message)) e.preventDefault();
       }}
     >
       {children}
-    </form>
+    </ActionForm>
   );
 }
 

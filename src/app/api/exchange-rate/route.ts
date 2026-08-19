@@ -3,7 +3,7 @@ import { fetchExchangeRate } from "@/lib/currency";
 
 export async function GET(req: NextRequest) {
   const from = String(req.nextUrl.searchParams.get("from") || "USD").toUpperCase();
-  const to = String(req.nextUrl.searchParams.get("to") || "INR").toUpperCase();
+  const to = String(req.nextUrl.searchParams.get("to") || "AZN").toUpperCase();
 
   const result = await fetchExchangeRate(from, to);
   return NextResponse.json({

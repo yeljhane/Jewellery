@@ -4,7 +4,8 @@ import { recordSalePayment, updateCustomer } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { saleTxnLabel } from "@/lib/txn-types";
-import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +22,14 @@ export default async function CustomerDetailPage({
         include: { payments: true },
         orderBy: { saleDate: "desc" },
       },
+      serviceCases: { orderBy: { createdAt: "desc" }, take: 20 },
+      vatRefunds: { orderBy: { createdAt: "desc" }, take: 20 },
     },
   });
   if (!customer) notFound();
 
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   const openSales = customer.sales.filter(
@@ -87,7 +90,7 @@ export default async function CustomerDetailPage({
 
       {openSales.length > 0 ? (
         <Card title="Collect payment (udhaar)" className="mb-6">
-          <form action={recordSalePayment} className="grid max-w-3xl gap-3 md:grid-cols-4">
+          <ActionForm action={recordSalePayment} successTitle="Payment recorded" successMessage="The customer payment was recorded successfully." className="grid max-w-3xl gap-3 md:grid-cols-4">
             <Select label="Invoice" name="saleId" required defaultValue={openSales[0].id}>
               {openSales.map((s) => (
                 <option key={s.id} value={s.id}>
@@ -114,7 +117,7 @@ export default async function CustomerDetailPage({
             <div className="md:col-span-4">
               <Button type="submit">Record collection</Button>
             </div>
-          </form>
+          </ActionForm>
         </Card>
       ) : null}
 
@@ -174,8 +177,39 @@ export default async function CustomerDetailPage({
         </Card>
       </div>
 
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Card title="Customer-service history">
+          {customer.serviceCases.length === 0 ? (
+            <EmptyState title="No service cases" description="Complaints and enquiries are tracked separately from repairs." />
+          ) : (
+            <div className="space-y-3">
+              {customer.serviceCases.map((serviceCase) => (
+                <Link key={serviceCase.id} href={`/service/${serviceCase.id}`} className="flex items-center justify-between rounded-xl border border-[var(--border)] p-3 hover:bg-stone-50">
+                  <div><p className="font-medium text-[var(--gold-deep)]">{serviceCase.caseNumber}</p><p className="text-xs text-[var(--muted)]">{serviceCase.subject}</p></div>
+                  <Badge>{serviceCase.status.replaceAll("_", " ")}</Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Card>
+        <Card title="Tourist VAT-refund history">
+          {customer.vatRefunds.length === 0 ? (
+            <EmptyState title="No VAT-refund claims" />
+          ) : (
+            <div className="space-y-3">
+              {customer.vatRefunds.map((refund) => (
+                <Link key={refund.id} href={`/vat-refunds/${refund.id}`} className="flex items-center justify-between rounded-xl border border-[var(--border)] p-3 hover:bg-stone-50">
+                  <div><p className="font-medium text-[var(--gold-deep)]">{refund.refundNumber}</p><p className="text-xs text-[var(--muted)]">{money(refund.refundableAmount)}</p></div>
+                  <Badge>{refund.status}</Badge>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Card>
+      </div>
+
       <Card title="Edit customer" className="mt-6">
-        <form action={updateCustomer} className="grid max-w-3xl gap-3 md:grid-cols-2">
+        <ActionForm action={updateCustomer} successTitle="Customer updated" successMessage="The customer data was updated successfully." className="grid max-w-3xl gap-3 md:grid-cols-2">
           <input type="hidden" name="id" value={customer.id} />
           <Input label="Name" name="name" defaultValue={customer.name} required />
           <Input label="Phone" name="phone" defaultValue={customer.phone ?? ""} />
@@ -205,7 +239,7 @@ export default async function CustomerDetailPage({
             <Textarea label="Notes" name="notes" rows={2} defaultValue={customer.notes ?? ""} />
           </div>
           <Button type="submit">Save profile</Button>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

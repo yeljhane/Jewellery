@@ -4,6 +4,7 @@ import { updateJobStatus } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate, formatWeight } from "@/lib/utils";
 import { Badge, Button, Card, Input, PageHeader, Select } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -122,7 +123,7 @@ export default async function JobDetailPage({
         </Card>
 
         <Card title="Update Status">
-          <form action={updateJobStatus} className="space-y-4">
+          <ActionForm action={updateJobStatus} successTitle="Job updated" successMessage="The manufacturing job was updated successfully." className="space-y-4">
             <input type="hidden" name="id" value={job.id} />
             <Select label="Status" name="status" defaultValue={job.status}>
               <option value="PENDING">Pending</option>
@@ -143,7 +144,7 @@ export default async function JobDetailPage({
               wastage (issued − returned).
             </p>
             <Button type="submit">Save Changes</Button>
-          </form>
+          </ActionForm>
         </Card>
       </div>
     </div>

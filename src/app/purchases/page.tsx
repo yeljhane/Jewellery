@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { purchaseTxnLabel } from "@/lib/txn-types";
 import { Badge, Button, Card, DataTable, EmptyState, PageHeader } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -108,12 +109,12 @@ export default async function PurchasesPage({
                 </td>
                 <td className="px-3 py-3">
                   {po.status !== "RECEIVED" && po.status !== "CANCELLED" ? (
-                    <form action={receivePurchaseOrder}>
+                    <ActionForm action={receivePurchaseOrder} successTitle="Purchase received" successMessage="The purchase order was received successfully.">
                       <input type="hidden" name="id" value={po.id} />
                       <Button type="submit" variant="secondary" className="!px-2 !py-1 text-xs">
                         Mark Received
                       </Button>
-                    </form>
+                    </ActionForm>
                   ) : (
                     <span className="text-xs text-[var(--muted)]">
                       {po.receivedDate ? formatDate(po.receivedDate) : "—"}

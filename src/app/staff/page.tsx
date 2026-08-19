@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { STAFF_ROLES } from "@/lib/permissions";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select } from "@/components/ui";
 import { ConfirmForm } from "@/components/ConfirmForm";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function StaffPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add Staff" className="lg:col-span-1">
-          <form action={createStaff} className="space-y-3">
+          <ActionForm action={createStaff} successMessage="The staff account was added successfully." className="space-y-3">
             <Input label="Name" name="name" required />
             <Select label="Role" name="role" defaultValue="SALES" required>
               {STAFF_ROLES.map((r) => (
@@ -44,7 +45,7 @@ export default async function StaffPage() {
               min="0"
             />
             <Button type="submit">Create Staff</Button>
-          </form>
+          </ActionForm>
         </Card>
 
         <Card title="Directory" className="lg:col-span-2">
@@ -84,9 +85,11 @@ export default async function StaffPage() {
               <div className="space-y-4 border-t border-[var(--border)] pt-4">
                 <h3 className="text-sm font-semibold">Edit credentials</h3>
                 {staff.map((e) => (
-                  <form
+                  <ActionForm
                     key={e.id}
                     action={updateStaff}
+                    successTitle="Staff updated"
+                    successMessage="The staff account was updated successfully."
                     className="grid gap-2 rounded-lg border border-[var(--border)] p-3 md:grid-cols-3"
                   >
                     <input type="hidden" name="id" value={e.id} />
@@ -131,7 +134,7 @@ export default async function StaffPage() {
                         Save {e.name.split(" ")[0]}
                       </Button>
                     </div>
-                  </form>
+                  </ActionForm>
                 ))}
               </div>
             </div>

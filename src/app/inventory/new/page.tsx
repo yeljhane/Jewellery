@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createProduct } from "@/lib/actions";
+import { ActionForm } from "@/components/ActionForm";
 import { prisma } from "@/lib/prisma";
 import { nextSku } from "@/lib/data";
 import { JEWELLERY_TYPES } from "@/lib/txn-types";
@@ -26,7 +27,7 @@ export default async function NewProductPage() {
         }
       />
       <Card>
-        <form action={createProduct} className="grid gap-4 md:grid-cols-2" encType="multipart/form-data">
+        <ActionForm action={createProduct} successMessage="The inventory item was added successfully." className="grid gap-4 md:grid-cols-2" encType="multipart/form-data">
           <Input label="SKU" name="sku" defaultValue={sku} required />
           <Input label="Name" name="name" placeholder="Temple Necklace Set" required />
           <Select label="Jewellery Category" name="jewelleryType" defaultValue="GOLD" required>
@@ -67,7 +68,7 @@ export default async function NewProductPage() {
           <div className="md:col-span-2">
             <Button type="submit">Save Product</Button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

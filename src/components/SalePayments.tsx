@@ -53,7 +53,7 @@ function newRow(baseCurrency: string, method = "CASH", foreignAmount = ""): Paym
 
 export function SalePayments({
   dueAmount,
-  baseCurrency = "INR",
+  baseCurrency = "AZN",
   initialPayments,
 }: {
   dueAmount: number;
@@ -67,7 +67,7 @@ export function SalePayments({
     reference?: string | null;
   }>;
 }) {
-  const base = (baseCurrency || "INR").toUpperCase();
+  const base = (baseCurrency || "AZN").toUpperCase();
 
   const seeded =
     initialPayments && initialPayments.length > 0

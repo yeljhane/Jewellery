@@ -8,6 +8,7 @@ import {
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export default async function StockTransfersPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Request transfer" className="lg:col-span-1">
-          <form action={requestStockTransfer} className="space-y-3">
+          <ActionForm action={requestStockTransfer} successMessage="The stock transfer request was added successfully." className="space-y-3">
             <Select label="From" name="fromLocationId" required defaultValue="">
               <option value="">Select</option>
               {locations.map((l) => (
@@ -70,7 +71,7 @@ export default async function StockTransfersPage() {
             </Select>
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Submit request</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Transfer queue" className="lg:col-span-2">
           {transfers.length === 0 ? (
@@ -104,7 +105,7 @@ export default async function StockTransfersPage() {
                     </div>
                     <div className="space-y-2">
                       {t.status === "PENDING" ? (
-                        <form action={approveStockTransfer} className="space-y-2 rounded-lg border border-[var(--border)] p-2">
+                        <ActionForm action={approveStockTransfer} successTitle="Transfer approved" successMessage="The stock transfer was approved successfully." className="space-y-2 rounded-lg border border-[var(--border)] p-2">
                           <input type="hidden" name="id" value={t.id} />
                           {dual ? (
                             <>
@@ -122,23 +123,23 @@ export default async function StockTransfersPage() {
                               Approve
                             </Button>
                           </div>
-                        </form>
+                        </ActionForm>
                       ) : null}
                       {t.status === "PENDING" ? (
-                        <form action={rejectStockTransfer}>
+                        <ActionForm action={rejectStockTransfer} successTitle="Transfer rejected" successMessage="The stock transfer was rejected successfully.">
                           <input type="hidden" name="id" value={t.id} />
                           <Button type="submit" variant="secondary" className="!py-1 !text-xs">
                             Reject
                           </Button>
-                        </form>
+                        </ActionForm>
                       ) : null}
                       {t.status === "IN_TRANSIT" ? (
-                        <form action={confirmStockTransfer}>
+                        <ActionForm action={confirmStockTransfer} successTitle="Transfer confirmed" successMessage="The stock transfer was confirmed successfully.">
                           <input type="hidden" name="id" value={t.id} />
                           <Button type="submit" className="!py-1 !text-xs">
                             Confirm receipt
                           </Button>
-                        </form>
+                        </ActionForm>
                       ) : null}
                     </div>
                   </div>

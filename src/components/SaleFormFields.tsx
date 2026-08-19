@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ComponentProps } from "react";
+import { useMemo, useState, type ComponentProps, type FormEvent } from "react";
 import { SALE_TXN_TYPES, saleJewelleryScope } from "@/lib/txn-types";
 import { isDiamondProduct } from "@/lib/product-helpers";
 import { Button, Select, Textarea } from "@/components/ui";
@@ -9,6 +9,8 @@ import {
   SaleProductSearch,
   type SaleProductOption,
 } from "@/components/SaleProductSearch";
+import { queueOfflineSale, syncOfflineTransaction } from "@/lib/offline-pos-client";
+import { ActionForm } from "@/components/ActionForm";
 
 export function SaleFormFields({
   action,
@@ -16,11 +18,12 @@ export function SaleFormFields({
   employees,
   products,
   defaultMetalRate = 0,
-  baseCurrency = "INR",
+  baseCurrency = "AZN",
   defaultTaxPct = 3,
   submitLabel = "Complete Sale",
   mode = "full",
   defaults,
+  offlineMode = false,
 }: {
   action: (formData: FormData) => void | Promise<void>;
   customers: Array<{ id: string; name: string; phone: string | null; vipTier?: string | null }>;
@@ -32,6 +35,7 @@ export function SaleFormFields({
   submitLabel?: string;
   /** POS hides return categories for faster counter billing */
   mode?: "pos" | "full";
+  offlineMode?: boolean;
   defaults?: {
     id?: string;
     txnType?: string;
@@ -49,6 +53,9 @@ export function SaleFormFields({
     mode === "pos" ? SALE_TXN_TYPES.filter((t) => !t.isReturn) : SALE_TXN_TYPES;
 
   const [txnType, setTxnType] = useState(defaults?.txnType || "RETAIL_SALE");
+  const [formVersion, setFormVersion] = useState(0);
+  const [offlineMessage, setOfflineMessage] = useState<string | null>(null);
+  const [submittingOffline, setSubmittingOffline] = useState(false);
   const scope = saleJewelleryScope(txnType);
   const originalTxnType = defaults?.txnType || "RETAIL_SALE";
   const keepInitialCart = txnType === originalTxnType;
@@ -64,8 +71,51 @@ export function SaleFormFields({
   const scopeLabel =
     scope === "DIAMOND" ? "diamond" : scope === "GOLD" ? "gold" : "shop";
 
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!offlineMode) return;
+    event.preventDefault();
+    if (submittingOffline) return;
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+    let items: unknown[] = [];
+    try {
+      items = JSON.parse(String(formData.get("itemsJson") || "[]"));
+    } catch {
+      items = [];
+    }
+    if (items.length === 0) {
+      setOfflineMessage("Add at least one item before completing the sale.");
+      return;
+    }
+
+    setSubmittingOffline(true);
+    const queued = queueOfflineSale(formData);
+    form.reset();
+    setTxnType(defaults?.txnType || "RETAIL_SALE");
+    setFormVersion((value) => value + 1);
+    setOfflineMessage(
+      navigator.onLine
+        ? "Sale secured locally. Synchronizing…"
+        : "Sale saved offline and queued for synchronization."
+    );
+
+    if (navigator.onLine) {
+      const result = await syncOfflineTransaction(queued.clientTxnId);
+      if (result?.status === "SYNCED" && result.saleId) {
+        window.location.assign(`/sales/${result.saleId}`);
+        return;
+      }
+      if (result?.status === "CONFLICT") {
+        setOfflineMessage(`Synchronization conflict: ${result.message || "Review required."}`);
+      } else if (result?.status === "FAILED") {
+        setOfflineMessage(`Queued for retry: ${result.message || "Synchronization failed."}`);
+      }
+    }
+    setSubmittingOffline(false);
+  }
+
   return (
-    <form action={action} className="grid gap-4 md:grid-cols-2">
+    <ActionForm action={action} onSubmit={handleSubmit} successMessage="The sale was added successfully." className="grid gap-4 md:grid-cols-2">
       {defaults?.id ? <input type="hidden" name="id" value={defaults.id} /> : null}
 
       <Select
@@ -83,6 +133,7 @@ export function SaleFormFields({
       </Select>
 
       <SaleCustomerField
+        key={`customer-${formVersion}`}
         customers={customers}
         defaultCustomerId={defaults?.customerId ?? ""}
         defaultCustomerName={defaults?.customerName ?? ""}
@@ -109,7 +160,7 @@ export function SaleFormFields({
       </p>
 
       <SaleProductSearch
-        key={txnType}
+        key={`${txnType}-${formVersion}`}
         products={filteredProducts}
         jewelleryScope={scope}
         defaultMetalRate={defaultMetalRate}
@@ -128,7 +179,9 @@ export function SaleFormFields({
         <Textarea label="Notes" name="notes" rows={2} defaultValue={defaults?.notes ?? ""} />
       </div>
       <div className="md:col-span-2 flex flex-wrap gap-2">
-        <Button type="submit">{submitLabel}</Button>
+        <Button type="submit" disabled={submittingOffline}>
+          {submittingOffline ? "Securing sale…" : submitLabel}
+        </Button>
         {defaults?.id ? (
           <a
             href={`/sales/${defaults.id}`}
@@ -138,6 +191,17 @@ export function SaleFormFields({
           </a>
         ) : null}
       </div>
-    </form>
+      {offlineMessage ? (
+        <div
+          className={`md:col-span-2 rounded-lg border px-3 py-2 text-sm ${
+            offlineMessage.includes("conflict") || offlineMessage.startsWith("Add")
+              ? "border-amber-200 bg-amber-50 text-amber-900"
+              : "border-emerald-200 bg-emerald-50 text-emerald-900"
+          }`}
+        >
+          {offlineMessage}
+        </div>
+      ) : null}
+    </ActionForm>
   );
 }

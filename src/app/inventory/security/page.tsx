@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireOwnerOrManager } from "@/lib/auth";
 import { rfidLookupOrScan } from "@/lib/inventory-security-actions";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, StatCard } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -54,10 +55,10 @@ export default async function InventorySecurityPage() {
 
       <div className="mb-8 grid gap-6 xl:grid-cols-2">
         <Card title="RFID / serial scan">
-          <form action={rfidLookupOrScan} className="flex flex-wrap gap-2">
+          <ActionForm action={rfidLookupOrScan} successTitle="RFID scan recorded" successMessage="The matching piece was found and its scan was added to the movement history." className="flex flex-wrap gap-2">
             <Input name="rfidTag" placeholder="Scan RFID or type serial…" className="min-w-[220px] flex-1" />
             <Button type="submit">Lookup</Button>
-          </form>
+          </ActionForm>
           <p className="mt-2 text-xs text-[var(--muted)]">
             Records an RFID_SCAN movement and opens the matching piece.
           </p>

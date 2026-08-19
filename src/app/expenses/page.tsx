@@ -2,6 +2,7 @@ import { createExpense } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function ExpensesPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add Expense" className="lg:col-span-1">
-          <form action={createExpense} className="space-y-3">
+          <ActionForm action={createExpense} successMessage="The expense was added successfully." className="space-y-3">
             <Select label="Category" name="category" defaultValue="OTHER">
               <option value="RENT">Rent</option>
               <option value="UTILITIES">Utilities</option>
@@ -37,7 +38,7 @@ export default async function ExpensesPage() {
             </Select>
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Save Expense</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Ledger" className="lg:col-span-2">
           {expenses.length === 0 ? (

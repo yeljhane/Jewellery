@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { DeleteButton } from "@/components/ConfirmForm";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,7 @@ export default async function CustomersPage({
   const onlyOutstanding = outstanding === "1";
 
   const settings = await prisma.shopSettings.findFirst();
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
 
   const customers = await prisma.customer.findMany({
     where: query
@@ -66,7 +67,7 @@ export default async function CustomersPage({
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add Customer" className="lg:col-span-1">
-          <form action={createCustomer} className="space-y-3">
+          <ActionForm action={createCustomer} successMessage="The customer was added successfully." className="space-y-3">
             <Input label="Name" name="name" required />
             <Input label="Phone" name="phone" />
             <Input label="Email" name="email" type="email" />
@@ -87,7 +88,7 @@ export default async function CustomersPage({
             <Textarea label="Address" name="address" rows={2} />
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Save Customer</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card
           title="Directory"
@@ -167,7 +168,7 @@ export default async function CustomersPage({
         <h2 className="font-[family-name:var(--font-display)] text-xl">Quick edit</h2>
         {rows.slice(0, 8).map((c) => (
           <Card key={c.id} title={c.name}>
-            <form action={updateCustomer} className="grid gap-3 md:grid-cols-3">
+            <ActionForm action={updateCustomer} successTitle="Customer updated" successMessage="The customer data was updated successfully." className="grid gap-3 md:grid-cols-3">
               <input type="hidden" name="id" value={c.id} />
               <Input label="Name" name="name" defaultValue={c.name} required />
               <Input label="Phone" name="phone" defaultValue={c.phone ?? ""} />
@@ -196,7 +197,7 @@ export default async function CustomersPage({
                   Open profile
                 </Link>
               </div>
-            </form>
+            </ActionForm>
           </Card>
         ))}
       </div>

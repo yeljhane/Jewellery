@@ -27,7 +27,7 @@ export default async function LedgerPage({
   const selected = params.accountId || accounts[0]?.id;
   const ledger = selected ? await getLedger(selected, from, to) : null;
   const period = formatPeriodLabel(from, to);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   return (

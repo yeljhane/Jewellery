@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createManualJournal } from "@/lib/actions";
+import { ActionForm } from "@/components/ActionForm";
 import { getDayBook } from "@/lib/accounting";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -26,7 +27,7 @@ export default async function DayBookPage({
     prisma.shopSettings.findFirst(),
   ]);
   const period = formatPeriodLabel(from, to);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const money = (n: number) => formatCurrency(n, currency);
 
   return (
@@ -57,7 +58,7 @@ export default async function DayBookPage({
 
       <div className="mb-8 grid gap-6 lg:grid-cols-3">
         <Card title="Manual Journal Entry" className="no-print lg:col-span-1">
-          <form action={createManualJournal} className="space-y-3">
+          <ActionForm action={createManualJournal} successMessage="The journal entry was added successfully." className="space-y-3">
             <Input label="Date" name="entryDate" type="date" />
             <Input label="Narration" name="narration" required placeholder="Bank deposit / adjustment" />
             <Select label="Debit Account" name="debitCode" required defaultValue="1000">
@@ -76,7 +77,7 @@ export default async function DayBookPage({
             </Select>
             <Input label="Amount" name="amount" type="number" step="0.01" required />
             <Button type="submit">Post Entry</Button>
-          </form>
+          </ActionForm>
         </Card>
 
         <Card title="Journal Register" className="lg:col-span-2 print:col-span-full">

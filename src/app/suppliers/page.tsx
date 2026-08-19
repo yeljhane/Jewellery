@@ -1,6 +1,7 @@
 import { createSupplier } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { Button, Card, DataTable, EmptyState, Input, PageHeader, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +34,7 @@ export default async function SuppliersPage({
       <PageHeader title="Suppliers" description="Bullion dealers and material vendors." />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add Supplier" className="lg:col-span-1">
-          <form action={createSupplier} className="space-y-3">
+          <ActionForm action={createSupplier} successMessage="The supplier was added successfully." className="space-y-3">
             <Input label="Name" name="name" required />
             <Input label="Phone" name="phone" />
             <Input label="Email" name="email" type="email" />
@@ -41,7 +42,7 @@ export default async function SuppliersPage({
             <Textarea label="Address" name="address" rows={2} />
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Save Supplier</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card
           title="Directory"

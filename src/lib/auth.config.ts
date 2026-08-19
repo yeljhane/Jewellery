@@ -33,6 +33,10 @@ export const authConfig = {
         return true;
       }
 
+      if (pathname.startsWith("/api/offline-pos")) {
+        return ["OWNER", "MANAGER", "SALES"].includes(role);
+      }
+
       // Staff route + backup APIs
       if (pathname.startsWith("/staff") || pathname.startsWith("/api/backup")) {
         if (role !== "OWNER" && role !== "MANAGER") {

@@ -4,6 +4,7 @@ import { submitStockCount } from "@/lib/inventory-security-actions";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { Badge, Button, Card, PageHeader } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -48,7 +49,7 @@ export default async function StockCountDetailPage({
         {count.status !== "OPEN" ? (
           <p className="mb-4 text-sm text-[var(--muted)]">This count is closed.</p>
         ) : null}
-        <form action={submitStockCount}>
+        <ActionForm action={submitStockCount} successTitle="Count submitted" successMessage="The stock count was submitted successfully.">
           <input type="hidden" name="id" value={count.id} />
           <ul className="mb-4 divide-y divide-[var(--border)]">
             {count.lines.map((line) => {
@@ -83,7 +84,7 @@ export default async function StockCountDetailPage({
           {count.status === "OPEN" ? (
             <Button type="submit">Complete count</Button>
           ) : null}
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

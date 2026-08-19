@@ -2,6 +2,7 @@ import { createKarigar } from "@/lib/actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Badge, Button, Card, DataTable, EmptyState, Input, PageHeader, Textarea } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -19,14 +20,14 @@ export default async function KarigarsPage() {
       />
       <div className="grid gap-6 lg:grid-cols-3">
         <Card title="Add Karigar" className="lg:col-span-1">
-          <form action={createKarigar} className="space-y-3">
+          <ActionForm action={createKarigar} successMessage="The karigar was added successfully." className="space-y-3">
             <Input label="Name" name="name" required />
             <Input label="Phone" name="phone" />
             <Input label="Specialty" name="specialty" placeholder="Casting & Setting" />
             <Input label="Daily Wage" name="dailyWage" type="number" step="0.01" />
             <Textarea label="Notes" name="notes" rows={2} />
             <Button type="submit">Save Karigar</Button>
-          </form>
+          </ActionForm>
         </Card>
         <Card title="Workshop Roster" className="lg:col-span-2">
           {karigars.length === 0 ? (

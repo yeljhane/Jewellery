@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createRawMaterial } from "@/lib/actions";
+import { ActionForm } from "@/components/ActionForm";
 import { prisma } from "@/lib/prisma";
 import { Button, Card, Input, PageHeader, Select, Textarea } from "@/components/ui";
 
@@ -20,7 +21,7 @@ export default async function NewMaterialPage() {
         }
       />
       <Card>
-        <form action={createRawMaterial} className="grid gap-4 md:grid-cols-2">
+        <ActionForm action={createRawMaterial} successMessage="The raw material was added successfully." className="grid gap-4 md:grid-cols-2">
           <Input label="Name" name="name" placeholder="22K Gold Bar" required />
           <Select label="Type" name="type" defaultValue="METAL">
             <option value="METAL">Metal</option>
@@ -58,7 +59,7 @@ export default async function NewMaterialPage() {
           <div className="md:col-span-2">
             <Button type="submit">Save Material</Button>
           </div>
-        </form>
+        </ActionForm>
       </Card>
     </div>
   );

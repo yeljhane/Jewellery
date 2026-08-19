@@ -2,6 +2,7 @@ import { markCommissionPaid } from "@/lib/jewelry-pos-actions";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
 import { Button, Card, DataTable, EmptyState, PageHeader } from "@/components/ui";
+import { ActionForm } from "@/components/ActionForm";
 
 export const dynamic = "force-dynamic";
 
@@ -17,7 +18,7 @@ export default async function CommissionsPage() {
       take: 200,
     }),
   ]);
-  const currency = settings?.currency ?? "INR";
+  const currency = settings?.currency ?? "AZN";
   const accrued = entries
     .filter((e) => e.status === "ACCRUED")
     .reduce((s, e) => s + e.amount, 0);
@@ -56,12 +57,12 @@ export default async function CommissionsPage() {
                 <td className="px-3 py-3">{e.status}</td>
                 <td className="px-3 py-3">
                   {e.status === "ACCRUED" ? (
-                    <form action={markCommissionPaid}>
+                    <ActionForm action={markCommissionPaid} successTitle="Commission updated" successMessage="The commission was marked as paid.">
                       <input type="hidden" name="id" value={e.id} />
                       <Button type="submit" variant="secondary" className="!py-1 !text-xs">
                         Mark paid
                       </Button>
-                    </form>
+                    </ActionForm>
                   ) : (
                     "—"
                   )}
